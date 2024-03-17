@@ -1,0 +1,40 @@
+super usuario para manage.py
+admin
+admin@admin.com
+admin
+
+
+settings:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'USER': 'jose',
+        'PASSWORD': 'jose',
+        'NAME': 'proyecto_api',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"  
+        }  
+    }
+}
+
+
+
+models:
+from django.db import models
+
+
+#prueba
+class Company (models.Model):
+    name=models.CharField(max_length=100)
+    website=models.URLField(max_length=100)
+    foundation=models.PositiveIntegerField()
+    
+
+
+admin:
+from django.contrib import admin
+from .models import Company
+# Register your models here.
+admin.site.register(Company)
