@@ -4,37 +4,7 @@ admin@admin.com
 admin
 
 
-settings:
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'USER': 'jose',
-        'PASSWORD': 'jose',
-        'NAME': 'proyecto_api',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"  
-        }  
-    }
-}
-
-
-
-models:
-from django.db import models
-
-
-#prueba
-class Company (models.Model):
-    name=models.CharField(max_length=100)
-    website=models.URLField(max_length=100)
-    foundation=models.PositiveIntegerField()
-    
-
-
-admin:
-from django.contrib import admin
-from .models import Company
-# Register your models here.
-admin.site.register(Company)
+si quieres conectar a la api es asi
+http://localhost:8000/api/v1/user nota: esto cambia dependiendo de la tabla de usuario
+si quieres un usuario en especifico asi:
+http://localhost:8000/api/v1/user/1/

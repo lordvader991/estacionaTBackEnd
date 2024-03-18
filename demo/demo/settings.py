@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-sex-^l=u6mj2mtp$m#66#w&6@0rcz03b)n@=l0%d6wirw1s5@x
 DEBUG = True
 
 ALLOWED_HOSTS = []
+APPEND_SLASH = False
 
 
 # Application definition
@@ -82,7 +83,7 @@ DATABASES = {
         'PORT': '3306',
         'USER': 'jose',
         'PASSWORD': 'jose',
-        'NAME': 'django',
+        'NAME': 'estacionat',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"  
         }  
@@ -115,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-pe'
 
-TIME_ZONE = 'GMT-4'
+TIME_ZONE = 'America/La_Paz'
 
 USE_I18N = True
 
