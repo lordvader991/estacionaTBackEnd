@@ -40,8 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'bd',
-     'accounts'
+    'accounts',
+    'vehiculos',
+    'parqueo',
+    'reserva'
     ]
 
 MIDDLEWARE = [
@@ -83,12 +85,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': 'localhost',
         'PORT': '3306',
-        'USER': 'jose',
-        'PASSWORD': 'jose',
+        'USER': 'root',
+        'PASSWORD': '',
         'NAME': 'prueba1',
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"  
-        }  
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
