@@ -4,5 +4,4 @@ set -o errexit
 
 pip install -r requirements.txt
 
-python demo/manage.py collectstatic --no-input
 python demo/manage.py migrate
