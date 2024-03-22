@@ -3,9 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from accounts.models import  User
 from .serializers import  UserSerializer
-from rest_framework.decorators import action
 from rest_framework.authtoken.models import Token
-from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
