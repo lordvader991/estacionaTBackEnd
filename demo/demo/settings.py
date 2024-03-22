@@ -88,12 +88,18 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 # Replace the SQLite DATABASES configuration with PostgreSQL:
-
+#mysql://root:WtyZBHSnjPJCnAjTGqasxHNEojjOyYEd@viaduct.proxy.rlwy.net:15205/railway
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='mysql://root:admin@localhost:3306/prueba1',
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'railway',
+        'USER': 'root',
+        'PASSWORD': 'WtyZBHSnjPJCnAjTGqasxHNEojjOyYEd',
+        'HOST': 'viaduct.proxy.rlwy.net',
+        'PORT': '15205',
+
+    }
 }
 
 
