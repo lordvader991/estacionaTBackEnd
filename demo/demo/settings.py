@@ -88,15 +88,11 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 # Replace the SQLite DATABASES configuration with PostgreSQL:
-import dj_database_url
 
-import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(
         default='mysql://root:admin@localhost:3306/prueba1',
-        engine='django.db.backends.mysql',
-        conn_max_age=600,
     )
 }
 
