@@ -25,7 +25,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY',default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = 'RENDER' not in os.environ
-DEBUG  = False 
+DEBUG  = True 
 ALLOWED_HOSTS = []
 RENDER_EXTERNAL_HOSTNEM  = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 
@@ -95,8 +95,6 @@ DATABASES = {
         default='mysql://root:admin@localhost:3306/prueba1',
     )
 }
-
-
 
 
 
