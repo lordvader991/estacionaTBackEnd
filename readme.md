@@ -1,4 +1,11 @@
 # Documentacion de API EstacionaT
+
+# Indice
+- [usuario](#user)
+- [parqueo](#parking)
+- [vehiculo](#vehicle)
+- [typo de vehiculo](#typevehicle)
+
 ### Ruta principal
 * https://estacionatbackend.onrender.com/api/v2/
 
@@ -283,5 +290,249 @@ Método: DELETE
 ```json
 {
   "error": "El parqueo no existe."
+}
+```
+
+# **vehicle/**
+## **Ruta: /vehicle/**
+
+Método: GET
+* Descripción: Obtener la lista de todos los vehículos.
+* Respuesta exitosa (HTTP 200 OK):
+```json
+[
+  {
+    "id": "ID_del_vehículo",
+    "brand": "marca_del_vehículo",
+    "model": "modelo_del_vehículo",
+    "registration_plate": "placa_de_registro",
+    "type_vehicle": "ID_del_tipo_de_vehículo",
+    "user": "ID_del_usuario",
+    "created_at": "fecha_de_creación",
+    "updated_at": "fecha_de_actualización"
+  },
+  ...
+]
+```
+* Respuesta de error (HTTP 404 Not Found):
+```json
+[]
+```
+Método: POST
+* Descripción: Crear un nuevo vehículo.
+* Datos requeridos en formato JSON:
+```json
+{
+  "brand": "marca_del_vehículo",
+  "model": "modelo_del_vehículo",
+  "registration_plate": "placa_de_registro",
+  "type_vehicle": "ID_del_tipo_de_vehículo",
+  "user": "ID_del_usuario"
+}
+```
+* Respuesta exitosa (HTTP 201 Created):
+```json
+{
+  "id": "ID_del_vehículo",
+  "brand": "marca_del_vehículo",
+  "model": "modelo_del_vehículo",
+  "registration_plate": "placa_de_registro",
+  "type_vehicle": "ID_del_tipo_de_vehículo",
+  "user": "ID_del_usuario",
+  "created_at": "fecha_de_creación",
+  "updated_at": "fecha_de_actualización"
+}
+```
+
+* Respuesta de error (HTTP 400 Bad Request):
+```json
+{
+  "error": "Error en la validación de datos. Asegúrate de enviar todos los campos requeridos."
+}
+```
+
+## **Ruta: /vehicle/{id}/**
+Método: GET
+* Descripción: Obtener los detalles de un vehículo específico.
+* Respuesta exitosa (HTTP 200 OK):
+``` json
+{
+  "id": "ID_del_vehículo",
+  "brand": "marca_del_vehículo",
+  "model": "modelo_del_vehículo",
+  "registration_plate": "placa_de_registro",
+  "type_vehicle": "ID_del_tipo_de_vehículo",
+  "user": "ID_del_usuario",
+  "created_at": "fecha_de_creación",
+  "updated_at": "fecha_de_actualización"
+}
+```
+
+* Respuesta de error (HTTP 404 Not Found):
+``` json
+{
+  "error": "El vehículo no existe."
+}
+```
+Método: PUT
+* Descripción: Actualizar los detalles de un vehículo existente.
+* Datos requeridos en formato JSON:
+```json
+{
+  "brand": "nueva_marca_del_vehículo",
+  "model": "nuevo_modelo_del_vehículo",
+  "registration_plate": "nueva_placa_de_registro",
+  "type_vehicle": "nuevo_ID_del_tipo_de_vehículo",
+  "user": "nuevo_ID_del_usuario"
+}
+```
+* Respuesta exitosa (HTTP 200 OK):
+```json
+
+{
+  "id": "ID_del_vehículo",
+  "brand": "nueva_marca_del_vehículo",
+  "model": "nuevo_modelo_del_vehículo",
+  "registration_plate": "nueva_placa_de_registro",
+  "type_vehicle": "nuevo_ID_del_tipo_de_vehículo",
+  "user": "nuevo_ID_del_usuario",
+  "created_at": "fecha_de_creación",
+  "updated_at": "fecha_de_actualización"
+}
+```
+* Respuesta de error (HTTP 404 Not Found o HTTP 400 Bad Request):
+Si el vehículo no existe:
+```json
+{
+  "error": "El vehículo no existe."
+}
+```
+Si hay errores en la validación de datos:
+```json
+{
+  "error": "Error en la validación de datos. Asegúrate de enviar todos los campos requeridos."
+}
+```
+Método: DELETE
+* Descripción: Eliminar un vehículo existente.
+Respuesta exitosa (HTTP 200 OK):
+```json
+{
+  "deleted": true
+}
+```
+* Respuesta de error (HTTP 404 Not Found):
+```json
+{
+  "error": "El vehículo no existe."
+}
+```
+
+# **typevehicle/**
+## **Ruta: /typevehicle/**
+Método: GET
+* Descripción: Obtiene la lista de todos los tipos de vehículos.
+* Respuesta exitosa (HTTP 200 OK):
+```json
+[
+  {
+    "id": "ID_del_tipo_de_vehículo",
+    "name": "nombre_del_tipo_de_vehículo",
+    "description": "descripción_del_tipo_de_vehículo"
+  },
+  ...
+]
+```
+* Respuesta de error (HTTP 404 Not Found):
+```json
+[]
+```
+Método: POST
+* Descripción: Crea un nuevo tipo de vehículo.
+* Datos requeridos en formato JSON:
+``` json
+{
+  "name": "nombre_del_tipo_de_vehículo",
+  "description": "descripción_del_tipo_de_vehículo"
+}
+```
+* Respuesta exitosa (HTTP 201 Created):
+```json
+{
+  "id": "ID_del_tipo_de_vehículo_creado",
+  "name": "nombre_del_tipo_de_vehículo",
+  "description": "descripción_del_tipo_de_vehículo"
+}
+```
+
+* Respuesta de error (HTTP 400 Bad Request):
+```json
+{
+  "error": "Error en la validación de datos. Asegúrate de enviar todos los campos requeridos."
+}
+```
+## **Ruta: /typevehicle/{id}/**
+
+Método: GET
+* Descripción: Obtiene los detalles de un tipo de vehículo específico.
+* Respuesta exitosa (HTTP 200 OK):
+``` json
+{
+  "id": "ID_del_tipo_de_vehículo",
+  "name": "nombre_del_tipo_de_vehículo",
+  "description": "descripción_del_tipo_de_vehículo"
+}
+```
+
+* Respuesta de error (HTTP 404 Not Found):
+```json
+{
+  "error": "El tipo de vehículo no existe."
+}
+```
+Método: PUT
+* Descripción: Actualiza los detalles de un tipo de vehículo existente.
+Datos requeridos en formato JSON:
+```json
+{
+  "name": "nuevo_nombre_del_tipo_de_vehículo",
+  "description": "nueva_descripción_del_tipo_de_vehículo"
+}
+```
+
+* Respuesta exitosa (HTTP 200 OK):
+```json
+{
+  "id": "ID_del_tipo_de_vehículo",
+  "name": "nuevo_nombre_del_tipo_de_vehículo",
+  "description": "nueva_descripción_del_tipo_de_vehículo"
+}
+```
+* Respuesta de error (HTTP 404 Not Found o HTTP 400 Bad Request):
+* Si el tipo de vehículo no existe:
+```json
+{
+  "error": "El tipo de vehículo no existe."
+}
+```
+* Si hay errores en la validación de datos:
+``` json
+{
+  "error": "Error en la validación de datos. Asegúrate de enviar todos los campos requeridos."
+}
+```
+Método: DELETE
+
+* Descripción: Elimina un tipo de vehículo existente.
+* Respuesta exitosa (HTTP 200 OK):
+```json
+{
+  "deleted": true
+}
+```
+* Respuesta de error (HTTP 404 Not Found):
+```json
+{
+  "error": "El tipo de vehículo no existe."
 }
 ```
