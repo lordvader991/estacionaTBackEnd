@@ -7,6 +7,8 @@ from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class LoginAPIView(APIView):
@@ -47,6 +49,10 @@ class SignupAPIView(APIView):
             return Response({'token': token.key, 'user': user_data}, status=status.HTTP_201_CREATED)
         
 class UserDetailApiView(APIView):
+    #implementando las validaciones del token
+    authentication_classes= [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return User.objects.get(pk=pk)
