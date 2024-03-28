@@ -1,6 +1,8 @@
 from django.db import models
 from accounts.models import User
 from vehiculos.models import TypeVehicle, Vehicle
+from reserva.models import ExtraTime
+
 
 class Parking(models.Model):
     name = models.CharField(max_length=100)
@@ -55,18 +57,31 @@ class Price(models.Model):
         db_table = 'price'
         ordering = ['-created_at']
 
-
+class Details(models.Model):
+    starttime = models.DateTimeField()
+    endtime = models.DateTimeField()
+    totalamount = models.FloatField()
+    price = models.ForeignKey(Price, on_delete=models.CASCADE, related_name='reservations')
+    extratime = models.ForeignKey(ExtraTime, on_delete=models.CASCADE, related_name='reservations')
+    created_at= models.DateTimeField(auto_now_add=True)
+    updated_at= models.DateTimeField(auto_now=True)
+    class Meta:
+        db_table = 'details'
+        ordering = ['-created_at']
 
 class VehicleEntry(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='entries')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='entries')
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    parking = models.ForeignKey(Parking, on_delete=models.CASCADE, related_name='entries')
-    price = models.ForeignKey(Price, on_delete=models.CASCADE, related_name='entries')
-    created_at= models.DateTimeField(auto_now_add=True)
-    updated_at= models.DateTimeField(auto_now=True)
+    parking = models.ForeignKey('Parking', on_delete=models.CASCADE, related_name='entries')
+    is_reserva = models.BooleanField(default=False)
+    details = models.ForeignKey(Details, on_delete=models.CASCADE, related_name='entries', default=1)  # Aquí especifica el ID predeterminado del detalle existente
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
         db_table = 'vehicleentry'
         ordering = ['-created_at']
+
+
+
+

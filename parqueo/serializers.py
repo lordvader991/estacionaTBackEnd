@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from parqueo.models import  Parking, Address, OpeningHours, Price, VehicleEntry
+from parqueo.models import  Parking, Address, OpeningHours, Price, VehicleEntry, Details
 
 class ParkingSerializer(ModelSerializer):
     class Meta:
@@ -24,5 +24,9 @@ class PriceSerializer(ModelSerializer):
 class VehicleEntrySerializer(ModelSerializer):
     class Meta:
         model = VehicleEntry
-        fields = ['id','vehicle', 'user', 'start_time', 'end_time','total_amount', 'parking','price']
+        fields = ['id','vehicle', 'user', 'parking','is_reserva','details']
 
+class DetailsSerializer(ModelSerializer):
+    class Meta:
+        model = Details
+        fields = ['id', 'starttime', 'endtime', 'totalamount','price', 'extratime']

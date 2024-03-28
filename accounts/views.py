@@ -9,8 +9,11 @@ from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from django.conf import settings
 
-# Create your views here.
 class LoginAPIView(APIView):
     def get(self, request):
         serializer = UserSerializer(User.objects.all(), many=True)
@@ -29,7 +32,6 @@ class LoginAPIView(APIView):
 
 class SignupAPIView(APIView):
     def post(self, req):
-        print(req.data)
         serializer = UserSerializer(data=req.data)
         serializer.is_valid(raise_exception=True)
         user_data = serializer.validated_data
@@ -44,9 +46,28 @@ class SignupAPIView(APIView):
                 phone=user_data['phone']
             )
             user.set_password(user_data['password'])
+            user.correo_auth = True  #cuando envia el correo ahi se vuelve true
             user.save()
+
+            self.send_confirmation_email(user.email)
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key, 'user': user_data}, status=status.HTTP_201_CREATED)
+
+    def send_confirmation_email(self, to_email):
+        sender_email = settings.EMAIL_HOST_USER  
+        sender_password = settings.EMAIL_HOST_PASSWORD  
+        #mensaje
+        subject = "¡Registro exitoso!"
+        body = "¡Gracias por registrarte en nuestra aplicación EstacionaT!"
+        message = MIMEMultipart()
+        message['From'] = sender_email
+        message['To'] = to_email
+        message['Subject'] = subject
+        message.attach(MIMEText(body, 'plain'))
+        with smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(message)
         
 class UserDetailApiView(APIView):
     #implementando las validaciones del token

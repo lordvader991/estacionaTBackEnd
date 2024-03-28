@@ -94,12 +94,28 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 # Replace the SQLite DATABASES configuration with PostgreSQL:
 
-
+'''
 DATABASES = {
     'default': dj_database_url.config(
         default='mysql://root:admin@localhost:3306/prueba1',
     )
 }
+
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'USER': 'root',
+        'PASSWORD': '',
+        'NAME': 'estacionat',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"  
+        }  
+    }
+}  
+
 
 
 
@@ -144,3 +160,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True  
+EMAIL_HOST_USER = 'estacionat030@gmail.com'
+EMAIL_HOST_PASSWORD = 'vuxh pdbk ffbi zuvs'  
+DEFAULT_FROM_EMAIL = 'estacionat030@gmail.com'
