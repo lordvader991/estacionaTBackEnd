@@ -7,11 +7,9 @@ from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHour
 
 """ parking """
 class ParkingApiView(APIView):
-    def get(self, req,userID):
-        parkingsByUser = get_object_or_404(Parking.objects.filter(user = userID))
-        serializer = ParkingSerializer(parkingsByUser, many=True)
+    def get(self, request):
+        serializer = ParkingSerializer(Parking.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
-    
     def post(self,request):
         serializer=ParkingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,6 +48,12 @@ class ParkingDetailApiView(APIView):
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
 
+class ParkingView(APIView):
+    def get(self, request,userID):
+        parkingsByUser = get_object_or_404(Parking.objects.filter(user = userID))
+        serializer = ParkingSerializer(parkingsByUser, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+    
 """ address"""
 
 class AddressApiView(APIView):
