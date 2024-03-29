@@ -87,3 +87,12 @@ class VehicleDetailApiView(APIView):
         Vehicle.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
+
+class VehicleUserApiView(APIView):
+
+    def get(self, request,userID):
+        vehicleByUser = Vehicle.objects.filter(user=userID)
+        if not vehicleByUser.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = VehicleSerializer(vehicleByUser, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)    
