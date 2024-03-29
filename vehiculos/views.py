@@ -4,8 +4,6 @@ from rest_framework.response import Response
 from vehiculos.models import TypeVehicle, Vehicle
 from vehiculos.serializers import TypeVehicleSerializer, VehicleSerializer
 
-
-
 class TypeVehicleApiView(APIView):
     def get(self, request):
         serializer = TypeVehicleSerializer(TypeVehicle.objects.all(), many=True)
@@ -47,11 +45,6 @@ class TypeVehicleDetailApiView(APIView):
         TypeVehicle.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
-
-
-
-
-
 
 class VehicleApiView(APIView):
     def get(self, request):

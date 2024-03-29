@@ -2,7 +2,7 @@ from django.urls import path
 from parqueo.views import ParkingApiView, ParkingDetailApiView, AddressApiView, AddressDetailApiView, OpeningHoursApiView, OpeningHoursDetailApiView, PriceDetailApiView, PriceApiView, VehicleEntryApiView, VehicleEntryDetailApiView, DetailsApiView, DetailsDetailApiView
 urlpatterns_parqueos = [
     path('parking/<int:id>/', ParkingDetailApiView.as_view()),
-    path('parking/', ParkingApiView.as_view()),
+    path('parking/<int:userID>', ParkingApiView.as_view()),
     path('address/<int:id>/', AddressDetailApiView.as_view()),
     path('address/', AddressApiView.as_view()),
     path('openinghours/<int:id>/', OpeningHoursDetailApiView.as_view()),

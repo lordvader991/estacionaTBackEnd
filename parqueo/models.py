@@ -19,8 +19,6 @@ class Parking(models.Model):
         db_table = 'parking'
         ordering = ['-created_at']
 
-
-
 class Address(models.Model):
     city = models.CharField(max_length=30)
     street = models.CharField(max_length=30)
@@ -33,7 +31,6 @@ class Address(models.Model):
         db_table = 'address'
         ordering = ['-created_at']
 
-
 class OpeningHours(models.Model):
     day = models.CharField(max_length=15)
     open_time = models.TimeField()
@@ -44,8 +41,6 @@ class OpeningHours(models.Model):
     class Meta:
         db_table = 'openinghours'
         ordering = ['-created_at']
-
-
 
 class Price(models.Model):
     type_vehicle = models.ForeignKey(TypeVehicle, on_delete=models.CASCADE, related_name='prices')

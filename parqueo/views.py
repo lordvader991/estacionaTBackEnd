@@ -1,14 +1,17 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from parqueo.models import Parking, Address, OpeningHours, Price, VehicleEntry, Details
 from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceSerializer, VehicleEntrySerializer, DetailsSerializer
 
-
+""" parking """
 class ParkingApiView(APIView):
-    def get(self, request):
-        serializer = ParkingSerializer(Parking.objects.all(), many=True)
+    def get(self, req,userID):
+        parkingsByUser = get_object_or_404(Parking.objects.filter(user = userID))
+        serializer = ParkingSerializer(parkingsByUser, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+    
     def post(self,request):
         serializer=ParkingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -47,8 +50,7 @@ class ParkingDetailApiView(APIView):
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
 
-
-
+""" address"""
 
 class AddressApiView(APIView):
     def get(self, request):
@@ -93,7 +95,7 @@ class AddressDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 
-
+""" openingHours """
 
 class OpeningHoursApiView(APIView):
     def get(self, request):
@@ -138,8 +140,7 @@ class OpeningHoursDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 
-
-
+""" Price"""
 class PriceApiView(APIView):
     def get(self, request):
         serializer = PriceSerializer(Price.objects.all(), many=True)
@@ -183,6 +184,7 @@ class PriceDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 
+""" Vehicle Entry """
 class VehicleEntryApiView(APIView):
     def get(self, request):
         serializer = VehicleEntrySerializer(VehicleEntry.objects.all(), many=True)
@@ -226,7 +228,7 @@ class VehicleEntryDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 
-
+""" DetailsEntry"""
 class DetailsApiView(APIView):
     def get(self, request):
         serializer = DetailsSerializer(Details.objects.all(), many=True)
@@ -268,5 +270,3 @@ class DetailsDetailApiView(APIView):
         Details.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
-
-
