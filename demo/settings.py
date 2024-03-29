@@ -25,7 +25,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY',default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = 'RENDER' not in os.environ
-DEBUG  = True 
+DEBUG  = True
 ALLOWED_HOSTS = []
 RENDER_EXTERNAL_HOSTNEM  = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 
@@ -111,10 +111,10 @@ DATABASES = {
         'PASSWORD': '',
         'NAME': 'estacionat',
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"  
-        }  
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
-}  
+}
 '''
 
 
@@ -163,9 +163,9 @@ AUTH_USER_MODEL = 'accounts.User'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  
-EMAIL_PORT = 587  
-EMAIL_USE_TLS = True  
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'estacionat030@gmail.com'
-EMAIL_HOST_PASSWORD = 'vuxh pdbk ffbi zuvs'  
+EMAIL_HOST_PASSWORD = 'vuxh pdbk ffbi zuvs'
 DEFAULT_FROM_EMAIL = 'estacionat030@gmail.com'

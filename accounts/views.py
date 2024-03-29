@@ -18,13 +18,13 @@ class LoginAPIView(APIView):
     def get(self, request):
         serializer = UserSerializer(User.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
-    
+
     def post(self,req):
         user = get_object_or_404(User,username = req.data['username'])
 
         if not user.check_password(req.data['password']):
             return Response({"error":"invalid password"},status = status.HTTP_404_BAD_REQUEST)
-        
+
         token, created = Token.objects.get_or_create(user=user)
         serializer = UserSerializer(instance=user)
 
@@ -43,7 +43,8 @@ class SignupAPIView(APIView):
                 username=user_data['username'],
                 last_name=user_data['last_name'],
                 email=user_data['email'],
-                phone=user_data['phone']
+                phone=user_data['phone'],
+                rol_usuario=user_data.get('rol_usuario', False)
             )
             user.set_password(user_data['password'])
             user.correo_auth = True  #cuando envia el correo ahi se vuelve true
@@ -54,8 +55,8 @@ class SignupAPIView(APIView):
             return Response({'token': token.key, 'user': user_data}, status=status.HTTP_201_CREATED)
 
     def send_confirmation_email(self, to_email):
-        sender_email = settings.EMAIL_HOST_USER  
-        sender_password = settings.EMAIL_HOST_PASSWORD  
+        sender_email = settings.EMAIL_HOST_USER
+        sender_password = settings.EMAIL_HOST_PASSWORD
         #mensaje
         subject = "¡Registro exitoso!"
         body = "¡Gracias por registrarte en nuestra aplicación EstacionaT!"
@@ -68,7 +69,7 @@ class SignupAPIView(APIView):
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(message)
-        
+
 class UserDetailApiView(APIView):
     #implementando las validaciones del token
     authentication_classes= [TokenAuthentication]
@@ -104,4 +105,4 @@ class UserDetailApiView(APIView):
         user.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
-    
+
