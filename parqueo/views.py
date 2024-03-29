@@ -50,7 +50,9 @@ class ParkingDetailApiView(APIView):
 
 class ParkingView(APIView):
     def get(self, request,userID):
-        parkingsByUser = get_object_or_404(Parking.objects.filter(user = userID))
+        parkingsByUser = Parking.objects.filter(user=userID)
+        if not parkingsByUser.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ParkingSerializer(parkingsByUser, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
     
