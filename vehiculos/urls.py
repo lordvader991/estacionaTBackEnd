@@ -5,5 +5,5 @@ urlpatterns_vehiculos = [
     path('typevehicle/<int:id>/', TypeVehicleDetailApiView.as_view()),
     path('vehicle/<int:id>/', VehicleDetailApiView.as_view()),
     path('vehicle/', VehicleApiView.as_view()),
-    path('vehicle/user/<int:userID>', VehicleUserApiView.as_view()),
+    path('vehicle/user/<int:userID>/', VehicleUserApiView.as_view()),
 ]
