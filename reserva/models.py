@@ -10,7 +10,7 @@ class ExtraTime(models.Model):
     class Meta:
         db_table = 'extratime'
         ordering=['-created_at']
-
+""" 
 class ReservationDetails(models.Model):
     starttime = models.IntegerField()
     endtime = models.IntegerField()
@@ -24,3 +24,4 @@ class ReservationDetails(models.Model):
         ordering = ['-created_at'] 
 
 
+ """
