@@ -3,7 +3,6 @@ from accounts.models import User
 from vehiculos.models import TypeVehicle, Vehicle
 from reserva.models import ExtraTime
 
-
 class Parking(models.Model):
     name = models.CharField(max_length=100)
     capacity = models.IntegerField()
@@ -76,7 +75,3 @@ class VehicleEntry(models.Model):
     class Meta:
         db_table = 'vehicleentry'
         ordering = ['-created_at']
-
-
-
-

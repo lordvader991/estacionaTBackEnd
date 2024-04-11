@@ -29,7 +29,6 @@ class LoginAPIView(APIView):
         serializer = UserSerializer(instance=user)
 
         return Response({"token":token.key, "user":serializer.data},status = status.HTTP_200_OK)
-
 class SignupAPIView(APIView):
     def post(self, req):
         serializer = UserSerializer(data=req.data)
@@ -69,7 +68,6 @@ class SignupAPIView(APIView):
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(message)
-
 class UserDetailApiView(APIView):
     #implementando las validaciones del token
     authentication_classes= [TokenAuthentication]
@@ -105,4 +103,3 @@ class UserDetailApiView(APIView):
         user.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
-
