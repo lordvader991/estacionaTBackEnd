@@ -1,5 +1,4 @@
 from django.db import models
-from parqueo.models import Price
 
 class ExtraTime(models.Model):
     start_time = models.DateTimeField()
@@ -22,6 +21,4 @@ class ReservationDetails(models.Model):
     class Meta:
         db_table = 'reservationdetails'
         ordering = ['-created_at'] 
-
-
  """
