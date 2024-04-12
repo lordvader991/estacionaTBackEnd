@@ -11,6 +11,7 @@ class ParkingApiView(APIView):
         serializer = ParkingSerializer(Parking.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
     def post(self,request):
+        request.data['rol_usuario'] = True
         serializer=ParkingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -55,7 +56,7 @@ class ParkingView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = ParkingSerializer(parkingsByUser, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
-    
+
 """ address"""
 
 class AddressApiView(APIView):
