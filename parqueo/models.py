@@ -21,8 +21,8 @@ class Parking(models.Model):
 class Address(models.Model):
     city = models.CharField(max_length=30)
     street = models.CharField(max_length=30)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.CharField(max_length=100)
+    latitude = models.CharField(max_length=100)
     parking = models.ForeignKey(Parking, on_delete=models.CASCADE, related_name='addresses')
     created_at= models.DateTimeField(auto_now_add=True)
     updated_at= models.DateTimeField(auto_now=True)
