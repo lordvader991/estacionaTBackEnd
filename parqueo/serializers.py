@@ -6,12 +6,12 @@ class ParkingSerializer(ModelSerializer):
         model = Parking
         fields = ['id','name', 'capacity', 'phone', 'email', 'user', 'spaces_available', 'url_image', 'description']
         extra_kwargs = {
-            'phone': {'required': False},
-            'email': {'required': False},
+            'phone': {'required': False, 'allow_blank': True},
+            'email': {'required': False, 'allow_blank': True},
             'user': {'required': False},
             'spaces_available': {'required': False},
-            'url_image': {'required': False},
-            'description': {'required': False},
+            'url_image': {'required': False, 'allow_blank': True},
+            'description': {'required': False, 'allow_blank': True},
         }
 
 class AddressSerializer(ModelSerializer):
@@ -19,8 +19,8 @@ class AddressSerializer(ModelSerializer):
         model = Address
         fields = ['id','city', 'street', 'longitude', 'latitude', 'parking']
         extra_kwargs = {
-            'city': {'required': False},
-            'street': {'required': False},
+            'city': {'required': False, 'allow_blank': True},
+            'street': {'required': False, 'allow_blank': True},
             'longitude': {'required': False},
             'latitude': {'required': False},
             'parking': {'required': False},
@@ -31,9 +31,9 @@ class OpeningHoursSerializer(ModelSerializer):
         model = OpeningHours
         fields = ['id','day', 'open_time', 'close_time', 'parking']
         extra_kwargs = {
-            'day': {'required': False},
-            'open_time': {'required': False},
-            'close_time': {'required': False},
+            'day': {'required': False, 'allow_blank': True},
+            'open_time': {'required': False, 'allow_blank': True},
+            'close_time': {'required': False, 'allow_blank': True},
             'parking': {'required': False},
         }
 
@@ -42,7 +42,7 @@ class PriceSerializer(ModelSerializer):
         model = Price
         fields = ['id','type_vehicle', 'price_per_hour', 'parking']
         extra_kwargs = {
-            'type_vehicle': {'required': False},
+            'type_vehicle': {'required': False, 'allow_blank': True},
             'price_per_hour': {'required': False},
             'parking': {'required': False},
         }

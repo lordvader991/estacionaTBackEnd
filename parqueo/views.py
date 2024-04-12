@@ -11,9 +11,9 @@ class ParkingApiView(APIView):
         serializer = ParkingSerializer(Parking.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
     def post(self,request):
-        request.data['rol_usuario'] = True
         serializer=ParkingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        user_id = serializer.validated_data.get('user')
         serializer.save()
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
