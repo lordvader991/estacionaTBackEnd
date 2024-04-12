@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class ExtraTime(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -10,8 +9,8 @@ class ExtraTime(models.Model):
     class Meta:
         db_table = 'extratime'
         ordering=['-created_at']
-
-""" class ReservationDetails(models.Model):
+""" 
+class ReservationDetails(models.Model):
     starttime = models.IntegerField()
     endtime = models.IntegerField()
     totalamount = models.FloatField()
@@ -21,6 +20,5 @@ class ExtraTime(models.Model):
     updated_at= models.DateTimeField(auto_now=True)
     class Meta:
         db_table = 'reservationdetails'
-        ordering = ['-created_at'] """
-
-
+        ordering = ['-created_at'] 
+ """
