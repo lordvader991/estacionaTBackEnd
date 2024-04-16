@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from parqueo.models import Parking, Address, OpeningHours, Price, VehicleEntry, Details
-from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceSerializer, VehicleEntrySerializer, DetailsSerializer
+from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceHourSerializer, PriceSerializer, VehicleEntrySerializer, DetailsSerializer
 
 """ parking """
 class ParkingApiView(APIView):
@@ -148,14 +148,22 @@ class OpeningHoursDetailApiView(APIView):
 
 """ Price"""
 class PriceApiView(APIView):
-    def get(self, request):
+    def get(self, req):
         serializer = PriceSerializer(Price.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
-    def post(self,request):
-        serializer=PriceSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_201_CREATED, data=serializer.data)
+    def post(self,req):
+        price=PriceSerializer(data=req.data.price)
+        price.is_valid(raise_exception=True)
+
+        if price.data.is_reservation :
+            print(price.data)
+
+        #priceHour = PriceHourSerializer(data = req.data.#priceHour)
+        #priceHour.is_valid(raise_exception=True)
+
+        #price.save()
+        
+        return Response(status=status.HTTP_201_CREATED, data=price.data)
 
 class PriceDetailApiView(APIView):
     def get_object(self, pk):
@@ -171,11 +179,11 @@ class PriceDetailApiView(APIView):
         serializer = PriceSerializer(Price)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
-    def put(self, request, id):
+    def put(self, req, id):
         Price = self.get_object(id)
         if Price is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = PriceSerializer(Price, data=request.data)
+        serializer = PriceSerializer(Price, data=req.data)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_200_OK, data=serializer.data)
@@ -188,7 +196,6 @@ class PriceDetailApiView(APIView):
         Price.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
-
 
 """ Vehicle Entry """
 class VehicleEntryApiView(APIView):

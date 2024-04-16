@@ -43,12 +43,25 @@ class OpeningHours(models.Model):
 
 class Price(models.Model):
     type_vehicle = models.ForeignKey(TypeVehicle, on_delete=models.CASCADE, related_name='prices')
-    price_per_hour = models.FloatField()
+    price = models.FloatField()
     parking = models.ForeignKey(Parking, on_delete=models.CASCADE, related_name='prices')
+    is_reservation = models.BooleanField(default=False)
+    is_pricehour = models.BooleanField(default=False)
     created_at= models.DateTimeField(auto_now_add=True)
     updated_at= models.DateTimeField(auto_now=True)
     class Meta:
         db_table = 'price'
+        ordering = ['-created_at']
+
+class PriceHour(models.Model):
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    total_time = models.IntegerField()
+    price = models.ForeignKey(Price,on_delete=models.CASCADE,related_name="price_hour")
+    created_at= models.DateTimeField(auto_now_add=True)
+    updated_at= models.DateTimeField(auto_now=True)
+    class Meta:
+        db_table = 'pricehour'
         ordering = ['-created_at']
 
 class Details(models.Model):
