@@ -173,20 +173,9 @@ class PriceApiView(APIView):
     def post(self,req):
         price=PriceSerializer(data=req.data)
         price.is_valid(raise_exception=True)
-        if price.validated_data.get("is_pricehour"):
-           priceHourData = price.validated_data.get("price_hour")
-           if priceHourData:
-             priceSaved = price.save()  
-             priceHourData['price'] = priceSaved.id
-             priceHour = PriceHourSerializer(data=priceHourData)
-             priceHour.is_valid(raise_exception=True)
-             priceHour.save()
-           else:
-               return Response(status=status.HTTP_406_NOT_ACCEPTABLE,data={"msg":"is_pricehour field is true but price_hour field does not exist"})  
-        else:
-           price.save()  
-        
+        price.save()  
         return Response(status=status.HTTP_201_CREATED, data=price.data)
+
 
 class PriceDetailApiView(APIView):            
 

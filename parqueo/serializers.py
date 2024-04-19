@@ -57,7 +57,7 @@ class PriceSerializer(ModelSerializer):
  
     class Meta:
         model = Price
-        fields = ['type_vehicle', 'price', 'parking', 'is_reservation', 'is_pricehour', 'price_hour']
+        fields = ['type_vehicle','is_entry_fee' ,'price', 'parking', 'is_reservation', 'is_pricehour', 'price_hour']
 
     def create(self, validated_data):
         price_hour_data = validated_data.pop('price_hour', None)
