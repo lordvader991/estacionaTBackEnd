@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from parqueo.models import Parking, Address, OpeningHours, Price, PriceHour, VehicleEntry, Details
 from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceHourSerializer, PriceSerializer, VehicleEntrySerializer, DetailsSerializer
 
