@@ -68,6 +68,7 @@ class SignupAPIView(APIView):
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(message)
+
 class UserDetailApiView(APIView):
     #implementando las validaciones del token
     authentication_classes= [TokenAuthentication]
