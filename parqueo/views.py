@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from parqueo.models import Parking, Address, OpeningHours, Price, VehicleEntry, Details
+from parqueo.models import Parking, Address, OpeningHours, Price, PriceHour, VehicleEntry, Details
 from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceHourSerializer, PriceSerializer, VehicleEntrySerializer, DetailsSerializer
 
 """ parking """
@@ -106,6 +106,19 @@ class AddressDetailApiView(APIView):
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
 
+class AddressParkingView(APIView):
+    def get_object(self, pk):
+        try:
+            return Address.objects.get(pk=pk)
+        except Address.DoesNotExist:
+            return None
+
+    def get(self, request, parkingID):
+        Address = Address.objects.get(parking = parkingID )
+        if Address is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = AddressSerializer(Address)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 """ openingHours """
 
@@ -158,33 +171,50 @@ class PriceApiView(APIView):
         serializer = PriceSerializer(Price.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
     def post(self,req):
-        price=PriceSerializer(data=req.data.price)
+        price=PriceSerializer(data=req.data)
         price.is_valid(raise_exception=True)
-
-        if price.data.is_reservation :
-            print(price.data)
-
-        #priceHour = PriceHourSerializer(data = req.data.#priceHour)
-        #priceHour.is_valid(raise_exception=True)
-
-        #price.save()
+        if price.validated_data.get("is_pricehour"):
+           priceHourData = price.validated_data.get("price_hour")
+           if priceHourData:
+             priceSaved = price.save()  
+             priceHourData['price'] = priceSaved.id
+             priceHour = PriceHourSerializer(data=priceHourData)
+             priceHour.is_valid(raise_exception=True)
+             priceHour.save()
+           else:
+               return Response(status=status.HTTP_406_NOT_ACCEPTABLE,data={"msg":"is_pricehour field is true but price_hour field does not exist"})  
+        else:
+           price.save()  
         
         return Response(status=status.HTTP_201_CREATED, data=price.data)
 
-class PriceDetailApiView(APIView):
+class PriceDetailApiView(APIView):            
+
     def get_object(self, pk):
         try:
             return Price.objects.get(pk=pk)
         except Price.DoesNotExist:
             return None
-
+    
     def get(self, request, id):
-        Price = self.get_object(id)
-        if Price is None:
+        price = self.get_object(id)
+        if price is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = PriceSerializer(Price)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
-
+        serializer = PriceSerializer(price)
+        if price.is_pricehour:
+            try:
+                price_hour = PriceHour.objects.get(price=price.id)
+                price_hour_serializer = PriceHourSerializer(price_hour)
+                result = serializer.data
+              
+                result['price_hour'] = price_hour_serializer.data 
+            except PriceHour.DoesNotExist:
+                result = serializer.data
+                result['price_hour'] = {} 
+        else:
+            result = serializer.data
+        return Response(status=status.HTTP_200_OK, data=result)
+    
     def put(self, req, id):
         Price = self.get_object(id)
         if Price is None:
@@ -202,6 +232,38 @@ class PriceDetailApiView(APIView):
         Price.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
+
+class PriceParkingApiView(APIView):
+    def get_object(self, pk):
+        try:
+            return Price.objects.get(pk=pk)
+        except Price.DoesNotExist:
+            return None
+    
+    def get(self, request, parkingID):
+        prices = Price.objects.filter(parking=parkingID).select_related('type_vehicle').only('type_vehicle__name')
+        if not prices.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        results = []
+        for price in prices:
+         
+            serializer = PriceSerializer(price)
+            if price.is_pricehour:
+                try:
+                    price_hour = PriceHour.objects.get(price=price.id)
+                    price_hour_serializer = PriceHourSerializer(price_hour)
+                    result = serializer.data
+                    result['price_hour'] = price_hour_serializer.data
+                except PriceHour.DoesNotExist:
+                    result = serializer.data
+                    result['price_hour'] = {}
+            else:
+                result = serializer.data
+            result['type_vehicle'] = price.type_vehicle.name
+            results.append(result)
+
+        return Response(status=status.HTTP_200_OK, data=results)
+        
 
 """ Vehicle Entry """
 class VehicleEntryApiView(APIView):

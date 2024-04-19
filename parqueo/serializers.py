@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from parqueo.models import  Parking, Address, OpeningHours, Price, PriceHour, VehicleEntry, Details
 from parqueo.models import Parking, Address, OpeningHours, Price, VehicleEntry, Details
+from vehiculos.serializers import TypeVehicleSerializer
 
 class ParkingSerializer(ModelSerializer):
     class Meta:
@@ -38,10 +39,6 @@ class OpeningHoursSerializer(ModelSerializer):
             'parking': {'required': False},
         }
 
-class PriceSerializer(ModelSerializer):
-    class Meta:
-        model = Price
-        fields = ['id', 'type_vehicle', 'price', 'parking', 'is_reservation', 'is_pricehour', 'created_at', 'updated_at']
 
 
 class PriceHourSerializer(ModelSerializer):
@@ -53,18 +50,23 @@ class PriceHourSerializer(ModelSerializer):
             'end_time': {'required': False},
             'total_time': {'required': False},
             'price': {'required': False},
-            'created_at': {'required': False},
-            'updated_at': {'required': False},
         }
 
+class PriceSerializer(ModelSerializer):
+    price_hour = PriceHourSerializer(required=False)
+ 
+    class Meta:
+        model = Price
+        fields = ['type_vehicle', 'price', 'parking', 'is_reservation', 'is_pricehour', 'price_hour']
 
+    def create(self, validated_data):
+        price_hour_data = validated_data.pop('price_hour', None)
+        price = Price.objects.create(**validated_data)
 
-        fields = ['id','type_vehicle', 'price_per_hour', 'parking']
-        extra_kwargs = {
-            'type_vehicle': {'required': False, 'allow_blank': True},
-            'price_per_hour': {'required': False},
-            'parking': {'required': False},
-        }
+        if price_hour_data:
+            PriceHour.objects.create(price=price, **price_hour_data)
+
+        return price
 
 class VehicleEntrySerializer(ModelSerializer):
     class Meta:
