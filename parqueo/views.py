@@ -114,10 +114,10 @@ class AddressParkingView(APIView):
             return None
 
     def get(self, request, parkingID):
-        Address = Address.objects.get(parking = parkingID )
-        if Address is None:
+        address = Address.objects.get(parking = parkingID )
+        if address is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = AddressSerializer(Address)
+        serializer = AddressSerializer(address)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 """ openingHours """
