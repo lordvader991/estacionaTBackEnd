@@ -1,6 +1,9 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from vehiculos.models import TypeVehicle, Vehicle
 from vehiculos.serializers import TypeVehicleSerializer, VehicleSerializer
 
@@ -47,8 +50,14 @@ class TypeVehicleDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 class VehicleApiView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
-        serializer = VehicleSerializer(Vehicle.objects.all(), many=True)
+        userID = request.user.id
+        vehicleByUser = Vehicle.objects.filter(user=userID)
+        if not vehicleByUser.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = VehicleSerializer(vehicleByUser, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
     def post(self,request):
         serializer=VehicleSerializer(data=request.data)
@@ -95,4 +104,4 @@ class VehicleUserApiView(APIView):
         if not vehicleByUser.exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = VehicleSerializer(vehicleByUser, many=True)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)    
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
