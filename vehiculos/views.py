@@ -50,14 +50,8 @@ class TypeVehicleDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 class VehicleApiView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
     def get(self, request):
-        userID = request.user.id
-        vehicleByUser = Vehicle.objects.filter(user=userID)
-        if not vehicleByUser.exists():
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = VehicleSerializer(vehicleByUser, many=True)
+        serializer = VehicleSerializer(Vehicle.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
     def post(self,request):
         serializer=VehicleSerializer(data=request.data)
@@ -98,8 +92,10 @@ class VehicleDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 class VehicleUserApiView(APIView):
-
-    def get(self, request,userID):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        userID = request.user.id
         vehicleByUser = Vehicle.objects.filter(user=userID)
         if not vehicleByUser.exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
