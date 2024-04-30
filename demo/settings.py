@@ -52,10 +52,11 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'accounts',
+    'extratime',
     'vehiculos',
-    'parqueo',
     'reserva',
-    'extratime'
+    'parqueo',
+   
     ]
 
 MIDDLEWARE = [

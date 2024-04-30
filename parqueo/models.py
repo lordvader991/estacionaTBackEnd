@@ -69,8 +69,8 @@ class Details(models.Model):
     starttime = models.DateTimeField()
     endtime = models.DateTimeField()
     totalamount = models.FloatField()
-    price = models.ForeignKey(Price, on_delete=models.CASCADE, related_name='reservations')
-    extratime = models.ForeignKey(ExtraTime, on_delete=models.CASCADE, related_name='reservations')
+    price = models.ForeignKey(Price, on_delete=models.CASCADE, related_name='prices')
+    extratime = models.ForeignKey(ExtraTime, on_delete=models.CASCADE, related_name='extra_time')
     created_at= models.DateTimeField(auto_now_add=True)
     updated_at= models.DateTimeField(auto_now=True)
     class Meta:
