@@ -39,8 +39,6 @@ if RENDER_EXTERNAL_HOSTNEM:
 APPEND_SLASH = False
 
 
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -56,7 +54,6 @@ INSTALLED_APPS = [
     'vehiculos',
     'reserva',
     'parqueo',
-   
 ]
 
 MIDDLEWARE = [
@@ -99,7 +96,7 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='mysql://root:admin@localhost:3306/prueba1',
+        default='mysql://root:admin@localhost:3306/prueba2',
     )
 }
 
