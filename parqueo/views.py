@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from parqueo.models import Parking, Address, OpeningHours, Price, PriceHour, VehicleEntry, Details
 from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceHourSerializer, PriceSerializer, VehicleEntrySerializer, DetailsSerializer
 
@@ -55,7 +57,10 @@ class ParkingDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 class ParkingView(APIView):
-    def get(self, request,userID):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        userID = request.user.id
         parkingsByUser = Parking.objects.filter(user=userID)
         if not parkingsByUser.exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -173,18 +178,18 @@ class PriceApiView(APIView):
     def post(self,req):
         price=PriceSerializer(data=req.data)
         price.is_valid(raise_exception=True)
-        price.save()  
+        price.save()
         return Response(status=status.HTTP_201_CREATED, data=price.data)
 
 
-class PriceDetailApiView(APIView):            
+class PriceDetailApiView(APIView):
 
     def get_object(self, pk):
         try:
             return Price.objects.get(pk=pk)
         except Price.DoesNotExist:
             return None
-    
+
     def get(self, request, id):
         price = self.get_object(id)
         if price is None:
@@ -195,15 +200,15 @@ class PriceDetailApiView(APIView):
                 price_hour = PriceHour.objects.get(price=price.id)
                 price_hour_serializer = PriceHourSerializer(price_hour)
                 result = serializer.data
-              
-                result['price_hour'] = price_hour_serializer.data 
+
+                result['price_hour'] = price_hour_serializer.data
             except PriceHour.DoesNotExist:
                 result = serializer.data
-                result['price_hour'] = {} 
+                result['price_hour'] = {}
         else:
             result = serializer.data
         return Response(status=status.HTTP_200_OK, data=result)
-    
+
     def put(self, req, id):
         Price = self.get_object(id)
         if Price is None:
@@ -228,14 +233,14 @@ class PriceParkingApiView(APIView):
             return Price.objects.get(pk=pk)
         except Price.DoesNotExist:
             return None
-    
+
     def get(self, request, parkingID):
         prices = Price.objects.filter(parking=parkingID).select_related('type_vehicle').only('type_vehicle__name')
         if not prices.exists():
             return Response(status=status.HTTP_404_NOT_FOUND)
         results = []
         for price in prices:
-         
+
             serializer = PriceSerializer(price)
             if price.is_pricehour:
                 try:
@@ -252,7 +257,7 @@ class PriceParkingApiView(APIView):
             results.append(result)
 
         return Response(status=status.HTTP_200_OK, data=results)
-        
+
 
 """ Vehicle Entry """
 class VehicleEntryApiView(APIView):

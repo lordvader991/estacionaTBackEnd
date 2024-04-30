@@ -3,7 +3,7 @@ from parqueo.views import AddressParkingView, ParkingApiView, ParkingDetailApiVi
 urlpatterns_parqueos = [
     path('parking/<int:id>/', ParkingDetailApiView.as_view()),
     path('parking/', ParkingApiView.as_view()),
-    path('parking/user/<int:userID>/', ParkingView.as_view()),
+    path('parking/user/', ParkingView.as_view()),
     path('address/<int:id>/', AddressDetailApiView.as_view()),
     path('address/parking/<int:parkingID>/', AddressParkingView.as_view()),
     path('address/', AddressApiView.as_view()),
