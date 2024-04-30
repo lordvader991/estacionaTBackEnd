@@ -12,7 +12,7 @@ def workDay():
             createTask(reserva)
     except:
         print("NOT FOUND RESERVATIONS")
-            
+
 def createTask(reserva):
     hora_inicio = reserva.start_time
     now = datetime.now()
@@ -22,8 +22,8 @@ def createTask(reserva):
     scheduler.start()
 
 def taskReservation(reserva):
-    data = {"time": "1"}
-    settings.FIREBASE_DB.child("reservation").push(data)
+    data = {str(reserva.id) : "1"}
+    settings.FIREBASE_DB.child("parkingtime").push(data)
 
 def startScheduler():
     scheduler = BackgroundScheduler()
