@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
+import pyrebase
+
+from firebase_admin import credentials
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -51,7 +54,8 @@ INSTALLED_APPS = [
     'accounts',
     'vehiculos',
     'parqueo',
-    'reserva'
+    'reserva',
+    'extratime'
     ]
 
 MIDDLEWARE = [
@@ -169,3 +173,20 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'estacionat030@gmail.com'
 EMAIL_HOST_PASSWORD = 'vuxh pdbk ffbi zuvs'
 DEFAULT_FROM_EMAIL = 'estacionat030@gmail.com'
+
+#Configuration Firebase
+
+firebaseConfig = {
+
+  "apiKey": "AIzaSyCPoF1O488ARIHdmHdukYXantnndP4QxU8",
+  "authDomain": "estacionat-44bcb.firebaseapp.com",
+  "projectId": "estacionat-44bcb",
+  "storageBucket": "estacionat-44bcb.appspot.com",
+  "messagingSenderId": "197731174542",
+  "appId": "1:197731174542:web:5755e740000dbda84da1df",
+  "measurementId": "G-CHZVS267EK",
+  "databaseURL":"https://estacionat-44bcb-default-rtdb.firebaseio.com/"
+}
+
+firebase = pyrebase.initialize_app(firebaseConfig)
+FIREBASE_DB = firebase.database()

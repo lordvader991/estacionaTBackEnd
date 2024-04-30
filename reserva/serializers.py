@@ -1,10 +1,8 @@
-from rest_framework.serializers import ModelSerializer
-from reserva.models import ExtraTime
+from rest_framework import serializers
+from .models import Reservation
 
-
-class ExtraTimeSerializer(ModelSerializer):
+class ReservationSerializer(serializers.ModelSerializer):
+    extra_time = serializers.IntegerField(required=False)
     class Meta:
-        model = ExtraTime
-        fields = ['id', 'start_time', 'end_time', 'duration']
-
-
+        model = Reservation
+        fields = ['id', 'start_time', 'end_time', 'total_amount', 'price', 'extra_time','reservation_date']

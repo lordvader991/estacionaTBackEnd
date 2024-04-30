@@ -1,50 +1,50 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from reserva.models import Reservation
-from reserva.serializers import ReservationSerializer
+from extratime.models import ExtraTime
+from extratime.serializers import ExtraTimeSerializer
 
-class ReservationApiView(APIView):
+
+class ExtraTimeApiView(APIView):
     def get(self, request):
-        serializer = ReservationSerializer(Reservation.objects.all(), many=True)
+        serializer = ExtraTimeSerializer(ExtraTime.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
-
-    def post(self, request):
-        serializer = ReservationSerializer(data=request.data)
+    def post(self,request):
+        serializer=ExtraTimeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         serializer.save()
-
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
-class ReservationDetailApiView(APIView):
+class ExtraTimeDetailApiView(APIView):
     def get_object(self, pk):
         try:
-            return Reservation.objects.get(pk=pk)
-        except Reservation.DoesNotExist:
+            return ExtraTime.objects.get(pk=pk)
+        except ExtraTime.DoesNotExist:
             return None
 
     def get(self, request, id):
-        reservation = self.get_object(id)
-        if reservation is None:
+        ExtraTime = self.get_object(id)
+        if ExtraTime is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = ReservationSerializer(reservation)
+        serializer = ExtraTimeSerializer(ExtraTime)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
     def put(self, request, id):
-        reservation = self.get_object(id)
-        if reservation is None:
+        ExtraTime = self.get_object(id)
+        if ExtraTime is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = ReservationSerializer(reservation, data=request.data)
+        serializer = ExtraTimeSerializer(ExtraTime, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_200_OK, data=serializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
 
     def delete(self, request, id):
-        reservation = self.get_object(id)
-        if reservation is None:
+        ExtraTime = self.get_object(id)
+        if ExtraTime is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        reservation.delete()
+        ExtraTime.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
+
+

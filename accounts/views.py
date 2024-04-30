@@ -1,8 +1,8 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from accounts.models import  User
-from .serializers import  UserSerializer
+from accounts.models import  MobileToken, User
+from .serializers import  MobileTokenSerializer, UserSerializer
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
@@ -10,6 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 import smtplib
+from rest_framework import generics
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from django.conf import settings
@@ -104,3 +106,12 @@ class UserDetailApiView(APIView):
         user.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
+    
+class MobileTokenListCreateAPIView(generics.ListCreateAPIView):
+    queryset = MobileToken.objects.all()
+    serializer_class = MobileTokenSerializer
+
+class MobileTokenRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MobileToken.objects.all()
+    serializer_class = MobileTokenSerializer
+

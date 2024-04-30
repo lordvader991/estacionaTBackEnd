@@ -10,3 +10,8 @@ class User(AbstractUser):
         created_at= models.DateTimeField(auto_now_add=True)
         updated_at= models.DateTimeField(auto_now=True)
         
+class MobileToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=100)
+    class Meta:
+        db_table = 'mobiletoken'

@@ -1,7 +1,7 @@
 from django.db import models
 from accounts.models import User
+from extratime.models import ExtraTime
 from vehiculos.models import TypeVehicle, Vehicle
-from reserva.models import ExtraTime
 
 class Parking(models.Model):
     name = models.CharField(max_length=100)
