@@ -5,11 +5,14 @@ from reserva.models import Reservation
 from demo import settings
 
 def workDay():
-    today = date.today()
-    reservas_del_dia = Reservation.objects.filter(reservation_date=today)
-    for reserva in reservas_del_dia:
-        createTask(reserva)
-        
+    try:
+        today = date.today()
+        reservas_del_dia = Reservation.objects.filter(reservation_date=today)
+        for reserva in reservas_del_dia:
+            createTask(reserva)
+    except:
+        print("NOT FOUND RESERVATIONS")
+            
 def createTask(reserva):
     hora_inicio = reserva.start_time
     now = datetime.now()
@@ -19,7 +22,7 @@ def createTask(reserva):
     scheduler.start()
 
 def taskReservation(reserva):
-    data = {"nombre": "1"}
+    data = {"time": "1"}
     settings.FIREBASE_DB.child("reservation").push(data)
 
 def startScheduler():
