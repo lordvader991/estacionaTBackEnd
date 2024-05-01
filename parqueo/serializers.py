@@ -71,13 +71,15 @@ class PriceSerializer(ModelSerializer):
 class VehicleEntrySerializer(ModelSerializer):
     class Meta:
         model = VehicleEntry
-        fields = ['id','vehicle', 'user', 'parking','is_reserva','details']
+        fields = ['id','vehicle', 'user', 'parking','is_reserva','details','is_userexternal','telefono']
         extra_kwargs = {
             'vehicle': {'required': False},
             'user': {'required': False},
             'parking': {'required': False},
             'is_reserva': {'required': False},
             'details': {'required': False},
+            'is_userexternal': {'required': False},
+            'telefono': {'required': False},
         }
 
 class DetailsSerializer(ModelSerializer):

@@ -82,6 +82,8 @@ class VehicleEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='entries')
     parking = models.ForeignKey('Parking', on_delete=models.CASCADE, related_name='entries')
     is_reserva = models.BooleanField(default=False)
+    is_userExternal = models.BooleanField(default=False)
+    telefono = models.CharField(max_length=50, null=True)
     details = models.ForeignKey(Details, on_delete=models.CASCADE, related_name='entries', default=1)  # Aquí especifica el ID predeterminado del detalle existente
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
