@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from reserva.models import Reservation
 from reserva.serializers import ReservationSerializer
-
+from datetime import date, datetime,timedelta
+from .tasks import DailyTaskScheduler
 class ReservationApiView(APIView):
     def get(self, request):
         serializer = ReservationSerializer(Reservation.objects.all(), many=True)
@@ -12,7 +13,8 @@ class ReservationApiView(APIView):
     def post(self, request):
         serializer = ReservationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
+        if(serializer.validated_data.reservation_date == date.today()):
+            DailyTaskScheduler().create_task(serializer.validated_data)
         serializer.save()
 
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)

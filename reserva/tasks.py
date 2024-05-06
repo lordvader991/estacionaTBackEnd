@@ -10,7 +10,6 @@ class DailyTaskScheduler:
     def start_daily_tasks(self):
         try:
             today = date.today()
-            
             reservas_del_dia = Reservation.objects.filter(reservation_date=today)
             for reserva in reservas_del_dia:
                 self.create_task(reserva)
@@ -19,6 +18,7 @@ class DailyTaskScheduler:
 
     def create_task(self, reserva):
         now = datetime.now()
+        
         fecha_hora_inicio = datetime.combine(now.date(), reserva.start_time)
         manager = ReservationManager(reserva.id, reserva.start_time, reserva.end_time)
         self.scheduler.add_job(manager.save_initial_duration, 'date', run_date=fecha_hora_inicio)
