@@ -117,10 +117,10 @@ class MobileTokenListCreateAPIView(APIView):
         mobiletoken_data = serializer.validated_data
         try:
             MobileToken.objects.create(**mobiletoken_data)
-            
+            return Response({'data':mobiletoken_data}, status=status.HTTP_201_CREATED)           
         except ObjectDoesNotExist:
-            return Response({'data':mobiletoken_data}, status=status.HTTP_201_CREATED)
-
+            return Response({'msg':'not created'}, status=status.HTTP_404_NOT_FOUND)
+ 
 
 class MobileTokenRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MobileToken.objects.all()

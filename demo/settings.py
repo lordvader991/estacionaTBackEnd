@@ -183,3 +183,4 @@ firebaseConfig = {
 
 firebase = pyrebase.initialize_app(firebaseConfig)
 FIREBASE_DB = firebase.database()
+FIREMESSAGING = firebase.messaging()
