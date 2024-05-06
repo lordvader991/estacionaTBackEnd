@@ -107,9 +107,20 @@ class UserDetailApiView(APIView):
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
     
-class MobileTokenListCreateAPIView(generics.ListCreateAPIView):
-    queryset = MobileToken.objects.all()
-    serializer_class = MobileTokenSerializer
+class MobileTokenListCreateAPIView(APIView):
+ def get(self, request):
+    serializer = MobileTokenSerializer(MobileToken.objects.all(), many=True)
+    return Response(status=status.HTTP_200_OK, data=serializer.data)
+ def post(self, req):
+        serializer = MobileTokenSerializer(data=req.data)
+        serializer.is_valid(raise_exception=True)
+        mobiletoken_data = serializer.validated_data
+        try:
+            MobileToken.objects.create(**mobiletoken_data)
+            raise ValidationError("Error with Firebase")
+        except ObjectDoesNotExist:
+            return Response({'data':mobiletoken_data}, status=status.HTTP_201_CREATED)
+
 
 class MobileTokenRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MobileToken.objects.all()

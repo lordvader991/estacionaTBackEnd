@@ -12,6 +12,6 @@ class User(AbstractUser):
         
 class MobileToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length=100)
+    token = models.CharField(max_length=200)
     class Meta:
         db_table = 'mobiletoken'
