@@ -1,20 +1,20 @@
 from datetime import date, datetime,timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from reserva.models import Reservation
-from demo import settings
+from demo.settings import FIREBASE_DB as db
 class DailyTaskScheduler:
     def __init__(self):
         self.scheduler = BackgroundScheduler()
         self.scheduler.add_job(self.start_daily_tasks, 'cron', hour=0, minute=0)
-    
+
     def start_daily_tasks(self):
         try:
-            today = date.today()
+            today = datetime.today().date()
             reservas_del_dia = Reservation.objects.filter(reservation_date=today)
             for reserva in reservas_del_dia:
                 self.create_task(reserva)
-        except:
-            print("NOT FOUND RESERVATIONS")
+        except Exception as e:
+            print("ERROR:", e)
 
     def create_task(self, reserva):
         now = datetime.now()
@@ -25,6 +25,7 @@ class DailyTaskScheduler:
         self.scheduler.start()
 
     def start(self):
+        
         self.scheduler.start()
 
 class ReservationManager:
@@ -40,7 +41,7 @@ class ReservationManager:
     
     def save_initial_duration(self):
         data = {"remaining_time": str(self.duration)}
-        settings.FIREBASE_DB.child("parkingtime").child(str(self.reserva_id)).set(data)
+        db.reference("parkingtime").child(str(self.reserva_id)).set(data)
         self.scheduler.add_job(self.task_reservation, 'interval', minutes=1)
         self.scheduler.start()
 
@@ -48,9 +49,9 @@ class ReservationManager:
         print(str(self.duration))
         new_remaining_time = self.duration - timedelta(minutes=1)
         if new_remaining_time.total_seconds() > 0:
-            settings.FIREBASE_DB.child("parkingtime").child(str(self.reserva_id)).update({"remaining_time": str(new_remaining_time)})
+            db.reference("parkingtime").child(str(self.reserva_id)).update({"remaining_time": str(new_remaining_time)})
             self.duration = new_remaining_time
             print("+ " + str(self.duration))
         else:
-            settings.FIREBASE_DB.child("parkingtime").child(str(self.reserva_id)).update({"remaining_time": "00:00:00"})
+            db.reference("parkingtime").child(str(self.reserva_id)).update({"remaining_time": "00:00:00"})
             self.scheduler.shutdown()

@@ -169,18 +169,16 @@ DEFAULT_FROM_EMAIL = 'estacionat030@gmail.com'
 
 #Configuration Firebase
 
-firebaseConfig = {
 
-  "apiKey": "AIzaSyCPoF1O488ARIHdmHdukYXantnndP4QxU8",
-  "authDomain": "estacionat-44bcb.firebaseapp.com",
-  "projectId": "estacionat-44bcb",
-  "storageBucket": "estacionat-44bcb.appspot.com",
-  "messagingSenderId": "197731174542",
-  "appId": "1:197731174542:web:5755e740000dbda84da1df",
-  "measurementId": "G-CHZVS267EK",
-  "databaseURL":"https://estacionat-44bcb-default-rtdb.firebaseio.com/"
-}
+import firebase_admin
+from firebase_admin import credentials, db
+if os.getenv("RENDER_ENV") == "production":
+    cred = credentials.Certificate('/etc/secrets/firebase.json')
+else:
+    cred = credentials.Certificate('firebase.json')
 
-firebase = pyrebase.initialize_app(firebaseConfig)
-FIREBASE_DB = firebase.database()
-FIREMESSAGING = firebase.messaging()
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://estacionat-44bcb-default-rtdb.firebaseio.com/'
+})
+
+FIREBASE_DB = db.reference()
