@@ -115,12 +115,17 @@ class MobileTokenListCreateAPIView(APIView):
 
     def post(self, request):
         serializer = MobileTokenSerializer(data=request.data)
-        if serializer.is_valid():
-            mobile_token_data = serializer.validated_data
-            MobileToken.objects.create(**mobile_token_data)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            mobile_token =  MobileToken.objects.get(user = serializer.validated_data['user'], token =serializer.validated_data['token'] )
+            mobile_token = MobileTokenSerializer(mobile_token)
+            return Response(data=mobile_token.data,status=status.HTTP_201_CREATED)
+        except:
+            if serializer.is_valid():
+                mobile_token_data = serializer.validated_data
+                MobileToken.objects.create(**mobile_token_data)
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MobileTokenRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MobileToken.objects.all()

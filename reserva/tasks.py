@@ -1,7 +1,10 @@
 from datetime import date, datetime,timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
+from accounts.models import MobileToken
 from reserva.models import Reservation
 from demo.settings import FIREBASE_DB as db
+from firebase_admin import messaging
+
 class DailyTaskScheduler:
     def __init__(self):
         self.scheduler = BackgroundScheduler()
@@ -19,20 +22,22 @@ class DailyTaskScheduler:
     def create_task(self, reserva):
         now = datetime.now()
         
-        fecha_hora_inicio = datetime.combine(now.date(), reserva.start_time)
-        manager = ReservationManager(reserva.id, reserva.start_time, reserva.end_time)
-        self.scheduler.add_job(manager.save_initial_duration, 'date', run_date=fecha_hora_inicio)
+        date_start = datetime.combine(now.date(), reserva.start_time)
+        time_start = date_start - timedelta(minutes=15)
+        
+        manager = ReservationManager(reserva)
+        self.scheduler.add_job(manager.save_initial_duration, 'date', run_date=time_start)
         self.scheduler.start()
 
-    def start(self):
-        
+    def start(self):  
         self.scheduler.start()
 
 class ReservationManager:
-    def __init__(self, reserva_id, start_time, end_time):
-        self.reserva_id = reserva_id
-        self.start_time = datetime.strptime(start_time, '%H:%M')
-        self.end_time = datetime.strptime(end_time, '%H:%M')
+    def __init__(self, reserva):
+        self.reserva_id = reserva.id
+        self.user_id = reserva.user
+        self.start_time = datetime.strptime(reserva.start_time, '%H:%M')
+        self.end_time = datetime.strptime(reserva.end_time, '%H:%M')
         self.duration = self.calculate_duration()
         self.scheduler = BackgroundScheduler()
     
@@ -42,16 +47,32 @@ class ReservationManager:
     def save_initial_duration(self):
         data = {"remaining_time": str(self.duration)}
         db.reference("parkingtime").child(str(self.reserva_id)).set(data)
-        self.scheduler.add_job(self.task_reservation, 'interval', minutes=1)
+        self.scheduler.add_job(self.start_reservation_task, 'interval', minutes=15,id=self.reserva_id)
         self.scheduler.start()
 
+    def start_reservation_task(self):
+        self.send_notification("Your reservation has started.")
+        first_run_time = datetime.now() + timedelta(minutes=15)
+        self.scheduler.add_job(self.task_reservation, 'interval', minutes=1, id=self.reserva_id, next_run_time=first_run_time, replace_existing=True)
+
     def task_reservation(self):
-        print(str(self.duration))
         new_remaining_time = self.duration - timedelta(minutes=1)
         if new_remaining_time.total_seconds() > 0:
             db.reference("parkingtime").child(str(self.reserva_id)).update({"remaining_time": str(new_remaining_time)})
             self.duration = new_remaining_time
+            if new_remaining_time == timedelta(minutes=15): 
+                self.send_notification("Quedan 15 minutos para acabar la reserva")
             print("+ " + str(self.duration))
         else:
             db.reference("parkingtime").child(str(self.reserva_id)).update({"remaining_time": "00:00:00"})
-            self.scheduler.shutdown()
+            self.send_notification("Your reservation has ended.")
+            self.scheduler.remove_job(self.reserva_id)
+    def send_notification(self, message):
+        token = self.get_device_token(self.user_id)
+        notification = messaging.Notification(title='Reserva Notificacion', body=message)
+        message = messaging.Message(notification=notification, token=token)
+        messaging.send(message)
+
+    def get_device_token(self, user_id):
+        return MobileToken.objects.filter(user=user_id).first().token
+    
