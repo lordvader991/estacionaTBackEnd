@@ -10,3 +10,6 @@ class VehicleSerializer(ModelSerializer):
     class Meta:
         model = Vehicle
         fields = ['id','brand', 'model', 'registration_plate', 'type_vehicle', 'user','is_ownparking']
+        extra_kwargs = {
+            'is_ownparking': {'required': False},
+        }
