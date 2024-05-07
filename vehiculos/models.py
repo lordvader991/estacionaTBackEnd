@@ -17,6 +17,7 @@ class Vehicle(models.Model):
     registration_plate = models.CharField(max_length=15)
     type_vehicle = models.ForeignKey(TypeVehicle, on_delete=models.CASCADE, related_name='vehicles')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vehicles')
+    is_ownParking = models.BooleanField(default=False)
     created_at= models.DateTimeField(auto_now_add=True)
     updated_at= models.DateTimeField(auto_now=True)
     class Meta:

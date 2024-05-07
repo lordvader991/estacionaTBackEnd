@@ -65,27 +65,31 @@ class PriceHour(models.Model):
         db_table = 'pricehour'
         ordering = ['-created_at']
 
+
+
+class VehicleEntry(models.Model):
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='entries')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='entries')
+    parking = models.ForeignKey(Parking, on_delete=models.CASCADE, related_name='entries')
+    is_reserva = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    phone = models.CharField(max_length=50)
+    is_userexternal = models.BooleanField(default=False)
+    class Meta:
+        db_table = 'vehicleentry'
+        ordering = ['-created_at']
+
 class Details(models.Model):
     starttime = models.DateTimeField()
     endtime = models.DateTimeField()
     totalamount = models.FloatField()
     price = models.ForeignKey(Price, on_delete=models.CASCADE, related_name='prices')
     extratime = models.ForeignKey(ExtraTime, on_delete=models.CASCADE, related_name='extra_time')
-    created_at= models.DateTimeField(auto_now_add=True)
-    updated_at= models.DateTimeField(auto_now=True)
-    class Meta:
-        db_table = 'details'
-        ordering = ['-created_at']
-
-class VehicleEntry(models.Model):
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='entries')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='entries')
-    parking = models.ForeignKey('Parking', on_delete=models.CASCADE, related_name='entries')
-    is_reserva = models.BooleanField(default=False)
-    details = models.ForeignKey(Details, on_delete=models.CASCADE, related_name='entries', default=1)  # Aquí especifica el ID predeterminado del detalle existente
+    vehicle_entry = models.ForeignKey(VehicleEntry, on_delete=models.CASCADE, related_name='details', null=True, blank=True)
+    is_userexternal = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     class Meta:
-        db_table = 'vehicleentry'
+        db_table = 'details'
         ordering = ['-created_at']

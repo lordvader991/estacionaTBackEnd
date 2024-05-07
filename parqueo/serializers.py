@@ -54,7 +54,7 @@ class PriceHourSerializer(ModelSerializer):
 
 class PriceSerializer(ModelSerializer):
     price_hour = PriceHourSerializer(required=False)
- 
+
     class Meta:
         model = Price
         fields = ['type_vehicle','is_entry_fee' ,'price', 'parking', 'is_reservation', 'is_pricehour', 'price_hour']
@@ -71,23 +71,25 @@ class PriceSerializer(ModelSerializer):
 class VehicleEntrySerializer(ModelSerializer):
     class Meta:
         model = VehicleEntry
-        fields = ['id','vehicle', 'user', 'parking','is_reserva','details']
+        fields = ['id','vehicle', 'user', 'parking','is_reserva','phone','is_userexternal']
         extra_kwargs = {
             'vehicle': {'required': False},
             'user': {'required': False},
             'parking': {'required': False},
             'is_reserva': {'required': False},
-            'details': {'required': False},
+            'phone': {'required': False},
+            'is_userexternal': {'required': False},
         }
 
 class DetailsSerializer(ModelSerializer):
     class Meta:
         model = Details
-        fields = ['id', 'starttime', 'endtime', 'totalamount','price', 'extratime']
+        fields = ['id', 'starttime', 'endtime', 'totalamount','price', 'extratime', 'vehicle_entry']
         extra_kwargs = {
             'starttime': {'required': False},
             'endtime': {'required': False},
             'totalamount': {'required': False},
             'price': {'required': False},
             'extratime': {'required': False},
+            'vehicle_entry': {'required': False},
         }
