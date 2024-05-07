@@ -12,7 +12,7 @@ class Reservation(models.Model):
     created_at= models.DateTimeField(auto_now_add=True)
     updated_at= models.DateTimeField(auto_now=True)
     reservation_date = models.DateField(default=None)
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,default=None,null=True,blank=True)
     class Meta:
         db_table = 'reservationdetails'
-        ordering = ['-created_at'] 
+        ordering = ['-created_at']

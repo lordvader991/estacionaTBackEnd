@@ -74,7 +74,7 @@ class VehicleEntry(models.Model):
     is_reserva = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    phone = models.CharField(max_length=50)
+    phone = models.CharField(max_length=50, default=False)
     is_userexternal = models.BooleanField(default=False)
     class Meta:
         db_table = 'vehicleentry'
