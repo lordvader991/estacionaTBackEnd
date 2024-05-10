@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from parqueo.serializers import VehicleEntrySerializer
 from reserva.models import Reservation
 from reserva.serializers import ReservationSerializer
 from datetime import date, datetime,timedelta
@@ -9,15 +10,28 @@ class ReservationApiView(APIView):
     def get(self, request):
         serializer = ReservationSerializer(Reservation.objects.all(), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+    def post(self, request, *args, **kwargs):
+        return self.save_details(request, *args, **kwargs)
 
-    def post(self, request):
-        serializer = ReservationSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        if serializer.validated_data.get('reservation_date') == date.today():
-            DailyTaskScheduler().create_task(serializer.validated_data)
-        serializer.save()
+    def save_details(self, request, *args, **kwargs):
+        reservation_data = request.data.get('reservation')
+        vehicle_entry_data = request.data.get('vehicle_entry')
+        
+        reservation_serializer = ReservationSerializer(data=reservation_data)
+        reservation_serializer.is_valid(raise_exception=True)
+        if reservation_serializer.validated_data.get('reservation_date') == date.today():
+            DailyTaskScheduler().create_task(reservation_serializer.validated_data)
+        reservation = reservation_serializer.save()
+ 
+        vehicle_entry_serializer = VehicleEntrySerializer(data=vehicle_entry_data)
+        vehicle_entry_serializer.is_valid(raise_exception=True)
+        vehicle_entry = vehicle_entry_serializer.save(reservation = reservation)
 
-        return Response(status=status.HTTP_201_CREATED, data=serializer.data)
+      
+        return Response(status=status.HTTP_201_CREATED, data={
+            'reservation': reservation_serializer.data,
+            'vehicle_entry': vehicle_entry_serializer.data,
+        })
 
 class ReservationDetailApiView(APIView):
     def get_object(self, pk):
@@ -50,3 +64,14 @@ class ReservationDetailApiView(APIView):
         reservation.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
+
+class ReservationDetailApiView(APIView):
+    def get(self, request, userID):
+        reservations = Reservation.objects.filter(user=userID)
+        if not reservations:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = ReservationSerializer(reservations, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+
+
