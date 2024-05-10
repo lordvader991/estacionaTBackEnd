@@ -10,7 +10,7 @@ class Parking(models.Model):
     email = models.EmailField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='parking')
     spaces_available = models.IntegerField()
-    url_image = models.CharField(max_length=150)
+    url_image = models.CharField(max_length=200)
     description = models.CharField(max_length=150)
     created_at= models.DateTimeField(auto_now_add=True)
     updated_at= models.DateTimeField(auto_now=True)
