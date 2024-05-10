@@ -6,7 +6,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from parqueo.models import Parking, Address, OpeningHours, Price, PriceHour, VehicleEntry, Details
 from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceHourSerializer, PriceSerializer, VehicleEntrySerializer, DetailsSerializer
-
+from vehiculos.serializers import VehicleSerializer
 """ parking """
 class ParkingApiView(APIView):
     def get(self, request):
@@ -314,6 +314,93 @@ class DetailsApiView(APIView):
         serializer.save()
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
+
+    def save_details(self, request, *args, **kwargs):
+        # Obtener datos del cuerpo de la solicitud
+        vehicle_data = request.data.get('vehicle_data')
+        vehicle_entry_data = request.data.get('vehicle_entry_data')
+        details_data = request.data.get('details_data')
+
+        # Establecer is_ownparking en True
+        vehicle_data['is_ownparking'] = True
+
+        # Guardar en la tabla Vehicle
+        vehicle_serializer = VehicleSerializer(data=vehicle_data)
+        vehicle_serializer.is_valid(raise_exception=True)
+        vehicle = vehicle_serializer.save()
+
+        # Obtener el ID del usuario
+        user_id = vehicle_data.get('user')
+
+
+        # Guardar en la tabla VehicleEntry con el ID del vehículo
+        vehicle_entry_serializer = VehicleEntrySerializer(data=vehicle_entry_data)
+        vehicle_entry_serializer.is_valid(raise_exception=True)
+        vehicle_entry = vehicle_entry_serializer.save(vehicle=vehicle, user_id=user_id)
+
+        # Obtener el ID de la entrada de vehículo recién creada
+        vehicle_entry_id = vehicle_entry.id
+
+        # Guardar en la tabla Details con el ID de VehicleEntry
+        details_data['vehicle_entry'] = vehicle_entry_id
+        details_serializer = DetailsSerializer(data=details_data, many=True)
+        details_serializer.is_valid(raise_exception=True)
+        details = details_serializer.save()
+
+        return Response(status=status.HTTP_201_CREATED, data={
+            'vehicle': vehicle_serializer.data,
+            'vehicle_entry': vehicle_entry_serializer.data,
+            'details': details_serializer.data
+        })
+
+""" DetailsEntry"""
+class DetailsApiCustomView(APIView):
+    def post(self, request, *args, **kwargs):
+        return self.save_details(request, *args, **kwargs)
+
+    def save_details(self, request, *args, **kwargs):
+        # Obtener datos del cuerpo de la solicitud
+        vehicle_data = request.data.get('vehicle_data')
+        vehicle_entry_data = request.data.get('vehicle_entry_data')
+        details_data = request.data.get('details_data')
+
+        # Establecer is_ownparking en True
+        vehicle_data['is_ownparking'] = True
+
+        # Guardar en la tabla Vehicle
+        vehicle_serializer = VehicleSerializer(data=vehicle_data)
+        vehicle_serializer.is_valid(raise_exception=True)
+        vehicle = vehicle_serializer.save()
+
+        # Obtener el ID del usuario
+        user_id = vehicle_data.get('user')
+
+
+        # Guardar en la tabla VehicleEntry con el ID del vehículo
+        vehicle_entry_serializer = VehicleEntrySerializer(data=vehicle_entry_data)
+        vehicle_entry_serializer.is_valid(raise_exception=True)
+        vehicle_entry = vehicle_entry_serializer.save(vehicle=vehicle, user_id=user_id)
+
+        # Obtener el ID de la entrada de vehículo recién creada
+        vehicle_entry_id = vehicle_entry.id
+
+        # Guardar en la tabla Details con el ID de VehicleEntry
+        print("Hola csadf asf asdf asdf asdf")
+        print(vehicle_entry_id)
+        print(details_data)
+        details_data[0]['vehicle_entry'] = vehicle_entry_id
+        details_dataXX =  details_data[0]
+        print(details_dataXX)
+        details_serializer = DetailsSerializer(data=details_data, many=True)
+        details_serializer.is_valid(raise_exception=True)
+        details = details_serializer.save()
+
+        return Response(status=status.HTTP_201_CREATED, data={
+            'vehicle': vehicle_serializer.data,
+            'vehicle_entry': vehicle_entry_serializer.data,
+            'details': details_serializer.data
+        })
+
 class DetailsDetailApiView(APIView):
     def get_object(self, pk):
         try:
@@ -345,3 +432,5 @@ class DetailsDetailApiView(APIView):
         Details.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
+
+

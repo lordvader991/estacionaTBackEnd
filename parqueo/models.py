@@ -81,11 +81,11 @@ class VehicleEntry(models.Model):
         ordering = ['-created_at']
 
 class Details(models.Model):
-    starttime = models.DateTimeField()
-    endtime = models.DateTimeField()
-    totalamount = models.FloatField()
-    price = models.ForeignKey(Price, on_delete=models.CASCADE, related_name='prices')
-    extratime = models.ForeignKey(ExtraTime, on_delete=models.CASCADE, related_name='extra_time')
+    starttime = models.DateTimeField(null=True)
+    endtime = models.DateTimeField(null=True)
+    totalamount = models.FloatField(null=True)
+    price = models.ForeignKey(Price, on_delete=models.CASCADE, related_name='prices', null=True, blank=True)
+    extratime = models.ForeignKey(ExtraTime, on_delete=models.CASCADE, related_name='extra_time',null=True, blank=True)
     vehicle_entry = models.ForeignKey(VehicleEntry, on_delete=models.CASCADE, related_name='details', null=True, blank=True)
     is_userexternal = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -93,3 +93,5 @@ class Details(models.Model):
     class Meta:
         db_table = 'details'
         ordering = ['-created_at']
+
+
