@@ -1,7 +1,7 @@
 from django.db import models
 from accounts.models import User
 from extratime.models import ExtraTime
-from parqueo.models import Price
+from parqueo.models import Price, VehicleEntry
 
 class Reservation(models.Model):
     start_time = models.TimeField()
@@ -13,6 +13,8 @@ class Reservation(models.Model):
     updated_at= models.DateTimeField(auto_now=True)
     reservation_date = models.DateField(default=None)
     user = models.ForeignKey(User,on_delete=models.CASCADE,default=None,null=True,blank=True)
+    vehicle_entry = models.ForeignKey(VehicleEntry, on_delete=models.CASCADE, related_name='vehicle_entry', null=True, blank=True)
+    
     class Meta:
         db_table = 'reservationdetails'
         ordering = ['-created_at']
