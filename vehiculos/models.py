@@ -23,3 +23,4 @@ class Vehicle(models.Model):
     class Meta:
         db_table = 'vehicle'
         ordering = ['-created_at']
+

@@ -303,6 +303,7 @@ class VehicleEntryDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 
+
 """ DetailsEntry"""
 class DetailsApiView(APIView):
     def get(self, request):
@@ -433,4 +434,9 @@ class DetailsDetailApiView(APIView):
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
 
+class VehicleEntryCustom (APIView):
+        def get(self, request, parkingID):
+            entries = VehicleEntry.objects.filter(parking_id=parkingID).select_related('vehicle')
+            vehicleentryserializer = VehicleEntrySerializer(entries, many=True)
+            return Response(status=status.HTTP_200_OK, data=vehicleentryserializer.data)
 

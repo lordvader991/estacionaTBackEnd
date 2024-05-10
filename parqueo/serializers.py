@@ -2,7 +2,8 @@ from rest_framework.serializers import ModelSerializer
 from parqueo.models import  Parking, Address, OpeningHours, Price, PriceHour, VehicleEntry, Details
 from parqueo.models import Parking, Address, OpeningHours, Price, VehicleEntry, Details
 from vehiculos.serializers import TypeVehicleSerializer
-
+from rest_framework import serializers
+from vehiculos.serializers import VehicleSerializer
 class ParkingSerializer(ModelSerializer):
     class Meta:
         model = Parking
@@ -69,6 +70,7 @@ class PriceSerializer(ModelSerializer):
         return price
 
 class VehicleEntrySerializer(ModelSerializer):
+    vehicle = VehicleSerializer()
     class Meta:
         model = VehicleEntry
         fields = ['id','vehicle', 'user', 'parking','is_reserva','phone','is_userexternal']
@@ -80,6 +82,8 @@ class VehicleEntrySerializer(ModelSerializer):
             'phone': {'required': False},
             'is_userexternal': {'required': False},
         }
+    def get_vehicle(self, obj):
+        return obj.vehicle
 
 class DetailsSerializer(ModelSerializer):
     class Meta:
