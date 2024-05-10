@@ -13,7 +13,7 @@ class ReservationApiView(APIView):
     def post(self, request):
         serializer = ReservationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if(serializer.validated_data.reservation_date == date.today()):
+        if serializer.validated_data.get('reservation_date') == date.today():
             DailyTaskScheduler().create_task(serializer.validated_data)
         serializer.save()
 
