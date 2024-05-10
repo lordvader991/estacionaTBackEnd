@@ -65,7 +65,7 @@ class ReservationDetailApiView(APIView):
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
 
-class ReservationDetailApiView(APIView):
+class ReservationUserDetailApiView(APIView):
     def get(self, request, userID):
         reservations = Reservation.objects.filter(user=userID)
         if not reservations:
