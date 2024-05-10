@@ -6,6 +6,8 @@ from reserva.models import Reservation
 from reserva.serializers import ReservationSerializer
 from datetime import date, datetime,timedelta
 from .tasks import DailyTaskScheduler
+from django.db import transaction
+
 class ReservationApiView(APIView):
     def get(self, request):
         serializer = ReservationSerializer(Reservation.objects.all(), many=True)
@@ -14,26 +16,29 @@ class ReservationApiView(APIView):
         return self.save_details(request, *args, **kwargs)
 
     def save_details(self, request, *args, **kwargs):
-        reservation_data = request.data.get('reservation')
-        vehicle_entry_data = request.data.get('vehicle_entry')
+        with transaction.atomic():
+            reservation_data = request.data.get('reservation')
+            vehicle_entry_data = request.data.get('vehicle_entry')
+      
+            vehicle_entry_data['is_reserva'] = True
 
-        vehicle_entry_serializer = VehicleEntrySerializer(data=vehicle_entry_data)
-        vehicle_entry_serializer.is_valid(raise_exception=True)
-        vehicle_entry = vehicle_entry_serializer.save()
+            vehicle_entry_serializer = VehicleEntrySerializer(data=vehicle_entry_data)
+            vehicle_entry_serializer.is_valid(raise_exception=True)
+            vehicle_entry = vehicle_entry_serializer.save()
         
-        reservation_serializer = ReservationSerializer(data=reservation_data)
-        reservation_serializer.is_valid(raise_exception=True)
-       
-        reservation_serializer.validated_data['vehicle_entry'] = vehicle_entry.id
-        reservation = reservation_serializer.save()
+            reservation_serializer = ReservationSerializer(data=reservation_data)
+            reservation_serializer.is_valid(raise_exception=True)
+        
+            reservation_serializer.validated_data['vehicle_entry'] = vehicle_entry
+            reservation = reservation_serializer.save()
 
-        if reservation_serializer.validated_data.get('reservation_date') == date.today():
-            DailyTaskScheduler().create_task(reservation_serializer.validated_data)
+            if reservation_serializer.validated_data.get('reservation_date') == date.today():
+                DailyTaskScheduler().create_task(reservation_serializer.validated_data)
 
-        return Response(status=status.HTTP_201_CREATED, data={
+            return Response(status=status.HTTP_201_CREATED, data={
             'reservation': reservation_serializer.data,
             'vehicle_entry': vehicle_entry_serializer.data,
-        })
+            })
 
 class ReservationDetailApiView(APIView):
     def get_object(self, pk):
