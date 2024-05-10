@@ -5,7 +5,7 @@ from reserva.views import ReservationApiView, ReservationDetailApiView, Reservat
 urlpatternsReservation= [
     path('reservations/', ReservationApiView.as_view()),
     path('reservations/<int:id>/', ReservationDetailApiView.as_view()),
-    path('reservations/<int:userID>/', ReservationUserDetailApiView.as_view()), 
+    path('reservations/user/<int:userID>/', ReservationUserDetailApiView.as_view()), 
 ]
 
 scheduler = DailyTaskScheduler()
