@@ -65,8 +65,6 @@ class PriceHour(models.Model):
         db_table = 'pricehour'
         ordering = ['-created_at']
 
-
-
 class VehicleEntry(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='entries')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='entries')
@@ -78,7 +76,7 @@ class VehicleEntry(models.Model):
     is_userexternal = models.BooleanField(default=False)
     class Meta:
         db_table = 'vehicleentry'
-        ordering = ['-created_at']
+        ordering = ['-created_at'] 
 
 class Details(models.Model):
     starttime = models.DateTimeField(null=True)

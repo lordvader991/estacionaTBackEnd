@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from parqueo.models import Parking, Address, OpeningHours, Price, PriceHour, VehicleEntry, Details
-from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceHourSerializer, PriceSerializer, VehicleEntrySerializer, DetailsSerializer
+from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceHourSerializer, PriceSerializer, VehicleEntryDataSerializer, VehicleEntrySerializer, DetailsSerializer
 from vehiculos.serializers import VehicleSerializer
 """ parking """
 class ParkingApiView(APIView):
@@ -303,7 +303,6 @@ class VehicleEntryDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=response_data)
 
 
-
 """ DetailsEntry"""
 class DetailsApiView(APIView):
     def get(self, request):
@@ -437,6 +436,6 @@ class DetailsDetailApiView(APIView):
 class VehicleEntryCustom (APIView):
         def get(self, request, parkingID):
             entries = VehicleEntry.objects.filter(parking_id=parkingID).select_related('vehicle')
-            vehicleentryserializer = VehicleEntrySerializer(entries, many=True)
+            vehicleentryserializer = VehicleEntryDataSerializer(entries, many=True)
             return Response(status=status.HTTP_200_OK, data=vehicleentryserializer.data)
 
