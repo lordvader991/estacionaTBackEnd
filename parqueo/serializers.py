@@ -33,9 +33,9 @@ class OpeningHoursSerializer(ModelSerializer):
         model = OpeningHours
         fields = ['id','day', 'open_time', 'close_time', 'parking']
         extra_kwargs = {
-            'day': {'required': False, 'allow_blank': True},
-            'open_time': {'required': False, 'allow_blank': True},
-            'close_time': {'required': False, 'allow_blank': True},
+            'day': {'required': False},
+            'open_time': {'required': False},
+            'close_time': {'required': False},
             'parking': {'required': False},
         }
 
