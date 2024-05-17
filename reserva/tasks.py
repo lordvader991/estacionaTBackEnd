@@ -49,12 +49,14 @@ class ReservationManager:
     def save_initial_duration(self):
         data = {"remaining_time": str(self.duration),"reservation":self.reserva_id}
         db.child("parkingtime").child(str(self.user_id)).set(data)
-        self.scheduler.add_job(self.start_reservation_task, 'interval', minutes=15,id=self.reserva_id)
+        #self.scheduler.add_job(self.start_reservation_task, 'interval', minutes=15,id=self.reserva_id)
+        self.scheduler.add_job(self.start_reservation_task, 'interval', minutes=1,id=self.reserva_id)
         self.scheduler.start()
 
     def start_reservation_task(self):
         self.send_notification("Your reservation has started.")
-        first_run_time = datetime.now() + timedelta(minutes=15)
+        #first_run_time = datetime.now() + timedelta(minutes=15)
+        first_run_time = datetime.now() + timedelta(minutes=1)
         self.scheduler.add_job(self.task_reservation, 'interval', minutes=1, id=self.reserva_id, next_run_time=first_run_time, replace_existing=True)
 
     def task_reservation(self):
