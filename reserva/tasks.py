@@ -1,4 +1,5 @@
 from datetime import date, datetime,timedelta
+import uuid
 from apscheduler.schedulers.background import BackgroundScheduler
 from accounts.models import MobileToken
 from reserva.models import Reservation
@@ -35,8 +36,8 @@ class DailyTaskScheduler:
 class ReservationManager:
     def __init__(self, reserva):
         today = date.today()
-        self.reserva_id = reserva.id
-        self.user_id = reserva.user
+        self.reserva_id = str(reserva.id) if reserva.id else uuid.uuid4().hex
+        self.user_id = reserva.user.id
         self.start_time = datetime.combine(today, reserva.start_time)
         self.end_time = datetime.combine(today, reserva.end_time)
         self.duration = self.calculate_duration()
