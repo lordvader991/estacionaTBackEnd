@@ -1,5 +1,5 @@
 from django.urls import path
-from parqueo.views import AddressParkingView, ParkingApiView, ParkingDetailApiView, AddressApiView, AddressDetailApiView, OpeningHoursApiView, OpeningHoursDetailApiView, ParkingView, PriceDetailApiView, PriceApiView, PriceParkingApiView, VehicleEntryApiView, VehicleEntryDetailApiView, DetailsApiView, DetailsDetailApiView, DetailsApiCustomView, VehicleEntryCustom
+from parqueo.views import AddressParkingView, ParkingApiView, ParkingDetailApiView, AddressApiView, AddressDetailApiView, OpeningHoursApiView, OpeningHoursDetailApiView, ParkingView, PriceDetailApiView, PriceApiView, PriceParkingApiView, VehicleEntryApiView, VehicleEntryDetailApiView, DetailsApiView, DetailsDetailApiView, DetailsApiCustomView, VehicleEntryCustom, OpeningHoursDetailApiViewById
 urlpatterns_parqueos = [
     path('parking/<int:id>/', ParkingDetailApiView.as_view()),
     path('parking/', ParkingApiView.as_view()),
@@ -8,6 +8,7 @@ urlpatterns_parqueos = [
     path('address/parking/<int:parkingID>/', AddressParkingView.as_view()),
     path('address/', AddressApiView.as_view()),
     path('openinghours/parking/<int:parking_id>/', OpeningHoursDetailApiView.as_view()),
+    path('openinghours/<int:id>/', OpeningHoursDetailApiViewById.as_view()),
     path('openinghours/', OpeningHoursApiView.as_view()),
     path('price/<int:id>/', PriceDetailApiView.as_view()),
     path('price/parking/<int:parkingID>/', PriceParkingApiView.as_view()),
