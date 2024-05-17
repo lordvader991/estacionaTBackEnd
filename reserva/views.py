@@ -28,8 +28,9 @@ class ReservationApiView(APIView):
         
             reservation_serializer = ReservationSerializer(data=reservation_data)
             reservation_serializer.is_valid(raise_exception=True)
-        
-            reservation_serializer.validated_data['vehicle_entry'] = vehicle_entry
+
+           
+            reservation_serializer.validated_data['vehicle_entry'] = vehicle_entry.id
             reservation = reservation_serializer.save()
 
             if reservation_serializer.validated_data.get('reservation_date') == date.today():
