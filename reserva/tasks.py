@@ -36,8 +36,8 @@ class ReservationManager:
     def __init__(self, reserva):
         self.reserva_id = reserva.id
         self.user_id = reserva.user
-        self.start_time = datetime.strptime(reserva.start_time, '%H:%M')
-        self.end_time = datetime.strptime(reserva.end_time, '%H:%M')
+        self.start_time = reserva.start_time
+        self.end_time = reserva.end_time
         self.duration = self.calculate_duration()
         self.scheduler = BackgroundScheduler()
     
