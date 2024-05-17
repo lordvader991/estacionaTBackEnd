@@ -45,8 +45,8 @@ class ReservationManager:
         return self.end_time - self.start_time
     
     def save_initial_duration(self):
-        data = {"remaining_time": str(self.duration)}
-        db.reference("parkingtime").child(str(self.reserva_id)).set(data)
+        data = {"remaining_time": str(self.duration),"reservation":self.reserva_id}
+        db.reference("parkingtime").child(str(self.user_id)).set(data)
         self.scheduler.add_job(self.start_reservation_task, 'interval', minutes=15,id=self.reserva_id)
         self.scheduler.start()
 
