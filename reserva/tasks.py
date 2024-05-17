@@ -34,10 +34,11 @@ class DailyTaskScheduler:
 
 class ReservationManager:
     def __init__(self, reserva):
+        today = date.today()
         self.reserva_id = reserva.id
         self.user_id = reserva.user
-        self.start_time = reserva.start_time
-        self.end_time = reserva.end_time
+        self.start_time = datetime.combine(today, reserva.start_time)
+        self.end_time = datetime.combine(today, reserva.end_time)
         self.duration = self.calculate_duration()
         self.scheduler = BackgroundScheduler()
     
