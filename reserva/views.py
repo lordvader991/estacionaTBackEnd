@@ -26,19 +26,21 @@ class ReservationApiView(APIView):
             vehicle_entry_serializer.is_valid(raise_exception=True)
             vehicle_entry = vehicle_entry_serializer.save()
         
+            reservation_data['vehicle_entry'] = vehicle_entry.id  # Use the ID temporarily for validation
+
             reservation_serializer = ReservationSerializer(data=reservation_data)
             reservation_serializer.is_valid(raise_exception=True)
 
-           
-            reservation_serializer.validated_data['vehicle_entry'] = vehicle_entry.id
+            # Here, replace the vehicle_entry ID with the actual instance
+            reservation_serializer.validated_data['vehicle_entry'] = vehicle_entry
             reservation = reservation_serializer.save()
 
             if reservation_serializer.validated_data.get('reservation_date') == date.today():
                 DailyTaskScheduler().create_task(reservation)
 
             return Response(status=status.HTTP_201_CREATED, data={
-            'reservation': reservation_serializer.data,
-            'vehicle_entry': vehicle_entry_serializer.data,
+                'reservation': reservation_serializer.data,
+                'vehicle_entry': vehicle_entry_serializer.data,
             })
 
 class ReservationDetailApiView(APIView):
