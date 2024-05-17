@@ -7,7 +7,7 @@ urlpatterns_parqueos = [
     path('address/<int:id>/', AddressDetailApiView.as_view()),
     path('address/parking/<int:parkingID>/', AddressParkingView.as_view()),
     path('address/', AddressApiView.as_view()),
-    path('openinghours/<int:id>/', OpeningHoursDetailApiView.as_view()),
+    path('openinghours/parking/<int:parking_id>/', OpeningHoursDetailApiView.as_view()),
     path('openinghours/', OpeningHoursApiView.as_view()),
     path('price/<int:id>/', PriceDetailApiView.as_view()),
     path('price/parking/<int:parkingID>/', PriceParkingApiView.as_view()),
