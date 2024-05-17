@@ -45,41 +45,34 @@ class ReservationManager:
     
     def calculate_duration(self):
         return self.end_time - self.start_time
-    
-    def save_initial_duration(self):
-        data = {"remaining_time": str(self.duration),"reservation":self.reserva_id}
-        db.child("parkingtime").child(str(self.user_id)).set(data)
-        #self.scheduler.add_job(self.start_reservation_task, 'interval', minutes=15,id=self.reserva_id)
-        self.scheduler.add_job(self.start_reservation_task, 'interval', minutes=1,id=self.reserva_id)
-        self.scheduler.start()
 
-    def start_reservation_task(self):
-        self.send_notification("Your reservation has started.")
-        #first_run_time = datetime.now() + timedelta(minutes=15)
-        first_run_time = datetime.now() + timedelta(minutes=1)
-        self.scheduler.add_job(self.task_reservation, 'interval', minutes=1, id=self.reserva_id, next_run_time=first_run_time, replace_existing=True)
+    def save_initial_duration(self):
+        data = {"remaining_time": str(self.duration), "reservation": self.reserva_id}
+        db.child("parkingtime").child(str(self.user_id)).set(data)
+        self.scheduler.add_job(self.task_reservation, 'interval', minutes=1, id=self.reserva_id, next_run_time=self.start_time)
+        self.scheduler.start()
 
     def task_reservation(self):
         new_remaining_time = self.duration - timedelta(minutes=1)
         print("TASK RESERVATION")
-        print(f"Duracion de la reserva: {str(self.duration)}")
+        print(f"Duración de la reserva: {str(self.duration)}")
+
         if new_remaining_time.total_seconds() > 0:
             db.child("parkingtime").child(str(self.user_id)).update({"remaining_time": str(new_remaining_time)})
             self.duration = new_remaining_time
-            if new_remaining_time == timedelta(minutes=15): 
+            if new_remaining_time == timedelta(minutes=15):
                 self.send_notification("Quedan 15 minutos para acabar la reserva")
-            print("+ " + str(self.duration))
+                print("+ " + str(self.duration))
         else:
             db.child("parkingtime").child(str(self.user_id)).update({"remaining_time": "00:00:00"})
             self.send_notification("Your reservation has ended.")
             self.scheduler.remove_job(self.reserva_id)
-            
+
     def send_notification(self, message):
         token = self.get_device_token(self.user_id)
-        notification = messaging.Notification(title='Reserva Notificacion', body=message)
+        notification = messaging.Notification(title='Reserva Notificación', body=message)
         message = messaging.Message(notification=notification, token=token)
         messaging.send(message)
 
     def get_device_token(self, user_id):
         return MobileToken.objects.filter(user=user_id).first().token
-    
