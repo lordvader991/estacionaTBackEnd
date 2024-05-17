@@ -59,6 +59,8 @@ class ReservationManager:
 
     def task_reservation(self):
         new_remaining_time = self.duration - timedelta(minutes=1)
+        print("TASK RESERVATION")
+        print(f"Duracion de la reserva: {str(self.duration)}")
         if new_remaining_time.total_seconds() > 0:
             db.child("parkingtime").child(str(self.user_id)).update({"remaining_time": str(new_remaining_time)})
             self.duration = new_remaining_time
@@ -69,6 +71,7 @@ class ReservationManager:
             db.child("parkingtime").child(str(self.user_id)).update({"remaining_time": "00:00:00"})
             self.send_notification("Your reservation has ended.")
             self.scheduler.remove_job(self.reserva_id)
+            
     def send_notification(self, message):
         token = self.get_device_token(self.user_id)
         notification = messaging.Notification(title='Reserva Notificacion', body=message)
