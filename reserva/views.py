@@ -33,7 +33,7 @@ class ReservationApiView(APIView):
             reservation = reservation_serializer.save()
 
             if reservation_serializer.validated_data.get('reservation_date') == date.today():
-                DailyTaskScheduler().create_task(reservation_serializer.validated_data)
+                DailyTaskScheduler().create_task(reservation)
 
             return Response(status=status.HTTP_201_CREATED, data={
             'reservation': reservation_serializer.data,
