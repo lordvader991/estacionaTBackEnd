@@ -23,7 +23,7 @@ class DailyTaskScheduler:
         now = datetime.now()
         
         date_start = datetime.combine(now.date(), reserva.start_time)
-        time_start = date_start - timedelta(minutes=15)
+        time_start = date_start - timedelta(minutes=0)
         
         manager = ReservationManager(reserva)
         self.scheduler.add_job(manager.save_initial_duration, 'date', run_date=time_start)
