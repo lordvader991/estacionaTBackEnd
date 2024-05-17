@@ -136,7 +136,6 @@ class OpeningHoursApiView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)
-
 class OpeningHoursDetailApiView(APIView):
     def get_object(self, pk):
         try:
@@ -144,30 +143,38 @@ class OpeningHoursDetailApiView(APIView):
         except OpeningHours.DoesNotExist:
             return None
 
-    def get(self, request, id):
-        OpeningHours = self.get_object(id)
-        if OpeningHours is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = OpeningHoursSerializer(OpeningHours)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+    def get(self, request, id=None, parking_id=None):
+        if parking_id is not None:
+            opening_hours = OpeningHours.objects.filter(parking_id=parking_id)
+            if not opening_hours.exists():
+                return Response(status=status.HTTP_404_NOT_FOUND, data={'detail': 'No opening hours found for this parking.'})
+            serializer = OpeningHoursSerializer(opening_hours, many=True)
+            return Response(status=status.HTTP_200_OK, data=serializer.data)
+        else:
+            opening_hour = self.get_object(id)
+            if opening_hour is None:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer = OpeningHoursSerializer(opening_hour)
+            return Response(status=status.HTTP_200_OK, data=serializer.data)
 
     def put(self, request, id):
-        OpeningHours = self.get_object(id)
-        if OpeningHours is None:
+        opening_hour = self.get_object(id)
+        if opening_hour is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = OpeningHoursSerializer(OpeningHours, data=request.data)
+        serializer = OpeningHoursSerializer(opening_hour, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_200_OK, data=serializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
 
     def delete(self, request, id):
-        OpeningHours = self.get_object(id)
-        if OpeningHours is None:
+        opening_hour = self.get_object(id)
+        if opening_hour is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        OpeningHours.delete()
+        opening_hour.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
+
 
 
 """ Price"""
