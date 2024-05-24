@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from parqueo.serializers import VehicleEntrySerializer
 from reserva.models import Reservation
-from reserva.serializers import ReservationSerializer
+from reserva.serializers import ReservationSerializer, ParkingEarningsSerializer
 from datetime import date, datetime,timedelta
 from .tasks import DailyTaskScheduler
 from django.db import transaction
@@ -19,13 +19,13 @@ class ReservationApiView(APIView):
         with transaction.atomic():
             reservation_data = request.data.get('reservation')
             vehicle_entry_data = request.data.get('vehicle_entry')
-      
+
             vehicle_entry_data['is_reserva'] = True
 
             vehicle_entry_serializer = VehicleEntrySerializer(data=vehicle_entry_data)
             vehicle_entry_serializer.is_valid(raise_exception=True)
             vehicle_entry = vehicle_entry_serializer.save()
-        
+
             reservation_data['vehicle_entry'] = vehicle_entry.id  # Use the ID temporarily for validation
 
             reservation_serializer = ReservationSerializer(data=reservation_data)
@@ -83,5 +83,8 @@ class ReservationUserDetailApiView(APIView):
         serializer = ReservationSerializer(reservations, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
-
-
+class ParkingEarningsView(APIView):
+    def get(self, request):
+        earnings = Reservation.calculate_total_earnings_per_parking()
+        serializer = ParkingEarningsSerializer(earnings, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
