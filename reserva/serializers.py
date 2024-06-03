@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from parqueo.models import VehicleEntry
+from parqueo.models import VehicleEntry, Parking
 from .models import Reservation
 
 class ReservationSerializer(serializers.ModelSerializer):
@@ -12,6 +12,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         fields = ['id', 'start_time', 'end_time', 'total_amount', 'price', 'extra_time', 'reservation_date', 'user', 'vehicle_entry']
 
 class ParkingEarningsSerializer(serializers.Serializer):
-    parking = serializers.IntegerField()
+    parking_id = serializers.IntegerField()
     total_earnings = serializers.FloatField()
-    vehicle_count = serializers.IntegerField()
+    reservation_vehicle_count = serializers.IntegerField()
+    external_vehicle_count = serializers.IntegerField()

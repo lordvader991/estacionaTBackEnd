@@ -85,6 +85,6 @@ class ReservationUserDetailApiView(APIView):
 
 class ParkingEarningsView(APIView):
     def get(self, request):
-        earnings = Reservation.calculate_total_earnings_per_parking()
+        earnings = Reservation.calculate_total_earnings_and_vehicle_count_per_parking()
         serializer = ParkingEarningsSerializer(earnings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

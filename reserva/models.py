@@ -21,11 +21,46 @@ class Reservation(models.Model):
         ordering = ['-created_at']
 
     @staticmethod
-    def calculate_total_earnings_per_parking():
-        return (Reservation.objects
-                .values(parking=F('vehicle_entry__parking'))
-                .annotate(
-                    total_earnings=Sum('total_amount'),
-                    vehicle_count=Count('vehicle_entry')
-                )
-                .order_by('parking'))
+    def calculate_total_earnings_and_vehicle_count_per_parking():
+        from django.db.models import Sum, Count, F, Q
+
+        earnings = Reservation.objects.values(parking_earning=F('vehicle_entry__parking')).annotate(
+            total_earnings=Sum('total_amount'),
+            reservation_vehicle_count=Count('vehicle_entry')
+        ).order_by('parking_earning')
+
+        vehicle_entries = VehicleEntry.objects.values(parking_entry=F('parking')).annotate(
+            entry_vehicle_count=Count('id'),
+            external_vehicle_count=Count('id', filter=Q(is_userexternal=True))
+        ).order_by('parking_entry')
+
+        parking_data = {}
+        for entry in vehicle_entries:
+            parking_data[entry['parking_entry']] = {
+                'entry_vehicle_count': entry['entry_vehicle_count'],
+                'external_vehicle_count': entry['external_vehicle_count']
+            }
+
+        for earning in earnings:
+            if earning['parking_earning'] in parking_data:
+                parking_data[earning['parking_earning']]['total_earnings'] = earning['total_earnings']
+                parking_data[earning['parking_earning']]['reservation_vehicle_count'] = earning['reservation_vehicle_count']
+            else:
+                parking_data[earning['parking_earning']] = {
+                    'total_earnings': earning['total_earnings'],
+                    'reservation_vehicle_count': earning['reservation_vehicle_count'],
+                    'entry_vehicle_count': 0,
+                    'external_vehicle_count': 0
+                }
+
+        result = []
+        for parking, data in parking_data.items():
+            result.append({
+                'parking_id': parking,
+                'total_earnings': data.get('total_earnings', 0),
+                'reservation_vehicle_count': data.get('reservation_vehicle_count', 0),
+                'entry_vehicle_count': data.get('entry_vehicle_count', 0),
+                'external_vehicle_count': data.get('external_vehicle_count', 0)
+            })
+
+        return result
