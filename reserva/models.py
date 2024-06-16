@@ -1,8 +1,9 @@
 from django.db import models
 from accounts.models import User
 from extratime.models import ExtraTime
-from parqueo.models import Price, VehicleEntry, Parking
-from django.db.models import Sum,F, Count
+from parqueo.models import Price, VehicleEntry, Parking, Details
+from django.db.models import Sum, Count, F, Q, DateField
+from django.db.models.functions import Cast, TruncDate
 
 class Reservation(models.Model):
     start_time = models.TimeField()
@@ -21,42 +22,73 @@ class Reservation(models.Model):
         ordering = ['-created_at']
 
     @staticmethod
-    def calculate_total_earnings_and_vehicle_count_per_parking():
-        from django.db.models import Sum, Count, F, Q
+    def calculate_total_earnings_and_vehicle_count_per_parking(parking_id):
 
-        earnings = Reservation.objects.values(parking_earning=F('vehicle_entry__parking')).annotate(
+        earnings = Reservation.objects.filter(vehicle_entry__parking_id=parking_id).values(
+            parking_earning_id=F('vehicle_entry__parking'),
+            earning_date=F('reservation_date')
+        ).annotate(
             total_earnings=Sum('total_amount'),
             reservation_vehicle_count=Count('vehicle_entry')
-        ).order_by('parking_earning')
-
-        vehicle_entries = VehicleEntry.objects.values(parking_entry=F('parking')).annotate(
+        ).order_by('parking_earning_id', 'earning_date')
+        vehicle_entries = VehicleEntry.objects.filter(parking_id=parking_id).annotate(
+            entry_date=TruncDate('created_at')
+        ).values(
+            parking_entry_id=F('parking'),
+            entry_date=F('entry_date')
+        ).annotate(
             entry_vehicle_count=Count('id'),
             external_vehicle_count=Count('id', filter=Q(is_userexternal=True))
-        ).order_by('parking_entry')
-
+        ).order_by('parking_entry_id', 'entry_date')
+        details_entries = Details.objects.filter(vehicle_entry__parking_id=parking_id).annotate(
+            details_date=TruncDate('starttime')
+        ).values(
+            parking_details_id=F('vehicle_entry__parking'),
+            details_date=F('details_date')
+        ).annotate(
+            external_vehicle_count=Count('vehicle_entry', filter=Q(vehicle_entry__is_userexternal=True))
+        ).order_by('parking_details_id', 'details_date')
         parking_data = {}
         for entry in vehicle_entries:
-            parking_data[entry['parking_entry']] = {
+            key = (entry['parking_entry_id'], entry['entry_date'])
+            parking_data[key] = {
                 'entry_vehicle_count': entry['entry_vehicle_count'],
-                'external_vehicle_count': entry['external_vehicle_count']
+                'external_vehicle_count': entry['external_vehicle_count'],
+                'date': entry['entry_date']
             }
 
         for earning in earnings:
-            if earning['parking_earning'] in parking_data:
-                parking_data[earning['parking_earning']]['total_earnings'] = earning['total_earnings']
-                parking_data[earning['parking_earning']]['reservation_vehicle_count'] = earning['reservation_vehicle_count']
+            key = (earning['parking_earning_id'], earning['earning_date'])
+            if key in parking_data:
+                parking_data[key]['total_earnings'] = earning['total_earnings']
+                parking_data[key]['reservation_vehicle_count'] = earning['reservation_vehicle_count']
             else:
-                parking_data[earning['parking_earning']] = {
+                parking_data[key] = {
                     'total_earnings': earning['total_earnings'],
                     'reservation_vehicle_count': earning['reservation_vehicle_count'],
                     'entry_vehicle_count': 0,
-                    'external_vehicle_count': 0
+                    'external_vehicle_count': 0,
+                    'date': earning['earning_date']
+                }
+
+        for detail in details_entries:
+            key = (detail['parking_details_id'], detail['details_date'])
+            if key in parking_data:
+                parking_data[key]['external_vehicle_count'] += detail['external_vehicle_count']
+            else:
+                parking_data[key] = {
+                    'total_earnings': 0,
+                    'reservation_vehicle_count': 0,
+                    'entry_vehicle_count': 0,
+                    'external_vehicle_count': detail['external_vehicle_count'],
+                    'date': detail['details_date']
                 }
 
         result = []
-        for parking, data in parking_data.items():
+        for (parking_id, date), data in parking_data.items():
             result.append({
-                'parking_id': parking,
+                'parking_id': parking_id,
+                'date': data['date'],
                 'total_earnings': data.get('total_earnings', 0),
                 'reservation_vehicle_count': data.get('reservation_vehicle_count', 0),
                 'entry_vehicle_count': data.get('entry_vehicle_count', 0),

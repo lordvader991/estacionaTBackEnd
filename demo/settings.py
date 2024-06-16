@@ -93,6 +93,7 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 # Replace the SQLite DATABASES configuration with PostgreSQL:
 
+'''
 
 DATABASES = {
     'default': dj_database_url.config(
@@ -114,7 +115,6 @@ DATABASES = {
         }
     }
 }
-'''
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

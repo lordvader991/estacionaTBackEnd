@@ -13,6 +13,8 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 class ParkingEarningsSerializer(serializers.Serializer):
     parking_id = serializers.IntegerField()
+    date = serializers.DateField()
     total_earnings = serializers.FloatField()
     reservation_vehicle_count = serializers.IntegerField()
+    entry_vehicle_count = serializers.IntegerField()
     external_vehicle_count = serializers.IntegerField()

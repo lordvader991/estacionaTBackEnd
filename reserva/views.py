@@ -84,7 +84,10 @@ class ReservationUserDetailApiView(APIView):
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 class ParkingEarningsView(APIView):
-    def get(self, request):
-        earnings = Reservation.calculate_total_earnings_and_vehicle_count_per_parking()
+    def get(self, request, parking_id=None):
+        if parking_id is None:
+            return Response({"error": "parking_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        earnings = Reservation.calculate_total_earnings_and_vehicle_count_per_parking(parking_id)
         serializer = ParkingEarningsSerializer(earnings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
