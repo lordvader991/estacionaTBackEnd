@@ -23,7 +23,7 @@ class Reservation(models.Model):
 
     @staticmethod
     def calculate_total_earnings_and_vehicle_count_per_parking(parking_id):
-
+        # Earnings from reservations
         earnings = Reservation.objects.filter(vehicle_entry__parking_id=parking_id).values(
             parking_earning_id=F('vehicle_entry__parking'),
             earning_date=F('reservation_date')
@@ -31,6 +31,8 @@ class Reservation(models.Model):
             total_earnings=Sum('total_amount'),
             reservation_vehicle_count=Count('vehicle_entry')
         ).order_by('parking_earning_id', 'earning_date')
+
+        # Vehicle entries
         vehicle_entries = VehicleEntry.objects.filter(parking_id=parking_id).annotate(
             entry_date=TruncDate('created_at')
         ).values(
@@ -40,28 +42,37 @@ class Reservation(models.Model):
             entry_vehicle_count=Count('id'),
             external_vehicle_count=Count('id', filter=Q(is_userexternal=True))
         ).order_by('parking_entry_id', 'entry_date')
+
+        # Details entries
         details_entries = Details.objects.filter(vehicle_entry__parking_id=parking_id).annotate(
             details_date=TruncDate('starttime')
         ).values(
             parking_details_id=F('vehicle_entry__parking'),
             details_date=F('details_date')
         ).annotate(
-            external_vehicle_count=Count('vehicle_entry', filter=Q(vehicle_entry__is_userexternal=True))
+            external_vehicle_count=Count('vehicle_entry', filter=Q(vehicle_entry__is_userexternal=True)),
+            details_total_earnings=Sum('totalamount')
         ).order_by('parking_details_id', 'details_date')
+
         parking_data = {}
+
+        # Process vehicle entries
         for entry in vehicle_entries:
             key = (entry['parking_entry_id'], entry['entry_date'])
             parking_data[key] = {
                 'entry_vehicle_count': entry['entry_vehicle_count'],
                 'external_vehicle_count': entry['external_vehicle_count'],
+                'total_earnings': 0,
+                'reservation_vehicle_count': 0,
                 'date': entry['entry_date']
             }
 
+        # Process earnings
         for earning in earnings:
             key = (earning['parking_earning_id'], earning['earning_date'])
             if key in parking_data:
-                parking_data[key]['total_earnings'] = earning['total_earnings']
-                parking_data[key]['reservation_vehicle_count'] = earning['reservation_vehicle_count']
+                parking_data[key]['total_earnings'] += earning['total_earnings']
+                parking_data[key]['reservation_vehicle_count'] += earning['reservation_vehicle_count']
             else:
                 parking_data[key] = {
                     'total_earnings': earning['total_earnings'],
@@ -71,13 +82,15 @@ class Reservation(models.Model):
                     'date': earning['earning_date']
                 }
 
+        # Process details entries
         for detail in details_entries:
             key = (detail['parking_details_id'], detail['details_date'])
             if key in parking_data:
                 parking_data[key]['external_vehicle_count'] += detail['external_vehicle_count']
+                parking_data[key]['total_earnings'] += detail['details_total_earnings']
             else:
                 parking_data[key] = {
-                    'total_earnings': 0,
+                    'total_earnings': detail['details_total_earnings'],
                     'reservation_vehicle_count': 0,
                     'entry_vehicle_count': 0,
                     'external_vehicle_count': detail['external_vehicle_count'],
