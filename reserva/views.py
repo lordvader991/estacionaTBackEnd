@@ -83,6 +83,20 @@ class ReservationUserDetailApiView(APIView):
         serializer = ReservationSerializer(reservations, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
+class ReservationPayment(APIView):
+    def get_object(self, id):
+        try:
+            return Reservation.objects.get(id=id)
+        except Reservation.DoesNotExist:
+            return None
+
+    def get(self, request, id):
+        reservation = self.get_object(id)
+        if reservation is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        reservation.state = Reservation.StateChoices.CONFIRMED
+        reservation.save()
+        return Response(status=status.HTTP_200_OK)
 
 class ParkingEarningsView(APIView):
     def get(self, request, parking_id=None):
