@@ -5,6 +5,14 @@ from parqueo.models import Price, VehicleEntry, Parking
 from django.db.models import Sum,F, Count
 
 class Reservation(models.Model):
+    class StateChoices(models.TextChoices):
+        PENDING = 'PENDING', 'Pendiente'
+        CONFIRMED = 'CONFIRMED', 'Confirmada'
+        ACTIVE = 'ACTIVE', 'Activa'
+        COMPLETED = 'COMPLETED', 'Completada'
+        CANCELLED = 'CANCELLED', 'Cancelada'
+        NO_SHOW = 'NO_SHOW', 'No Presentado'
+        MODIFIED = 'MODIFIED', 'Modificada'
     start_time = models.TimeField()
     end_time = models.TimeField()
     total_amount = models.FloatField()
@@ -15,6 +23,8 @@ class Reservation(models.Model):
     reservation_date = models.DateField(default=None)
     user = models.ForeignKey(User,on_delete=models.CASCADE,default=None,null=True,blank=True)
     vehicle_entry = models.ForeignKey(VehicleEntry, on_delete=models.CASCADE, related_name='vehicle_entry', null=True, blank=True)
+    state = models.CharField(max_length=10, choices=StateChoices.choices, default=StateChoices.PENDING)
+
 
     class Meta:
         db_table = 'reservationdetails'

@@ -9,7 +9,9 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reservation
-        fields = ['id', 'start_time', 'end_time', 'total_amount', 'price', 'extra_time', 'reservation_date', 'user', 'vehicle_entry']
+        fields = ['id', 'start_time', 'end_time', 'total_amount', 'price', 'extra_time', 'reservation_date', 'user', 'vehicle_entry','state']
+
+
 
 class ParkingEarningsSerializer(serializers.Serializer):
     parking_id = serializers.IntegerField()
