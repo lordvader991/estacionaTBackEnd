@@ -1,5 +1,5 @@
 from django.urls import path
-from reserva.tasks import DailyTaskScheduler
+from reserva.tasks import DailyTaskScheduler, ReservationManager
 from reserva.views import ReservationApiView, ReservationDetailApiView, ReservationPayment, ReservationUserDetailApiView, ParkingEarningsView
 
 urlpatternsReservation= [
