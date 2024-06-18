@@ -90,7 +90,7 @@ class ReservationPayment(APIView):
         except Reservation.DoesNotExist:
             return None
 
-    def get(self, request, id):
+    def post(self, request, id):
         reservation = self.get_object(id)
         if reservation is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
