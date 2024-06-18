@@ -68,8 +68,8 @@ class PriceHour(models.Model):
 
 
 class VehicleEntry(models.Model):
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='entries')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='entries')
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, related_name='entries',null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='entries',null=True)
     parking = models.ForeignKey(Parking, on_delete=models.CASCADE, related_name='entries')
     is_reserva = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
