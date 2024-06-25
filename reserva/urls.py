@@ -9,7 +9,7 @@ urlpatternsReservation= [
     path('parking-earnings/<int:parking_id>/', ParkingEarningsView.as_view(), name='parking-earnings'),
     #Estadisticas
      path('reservations/payment/<int:id>/', ReservationPayment.as_view()),
-      path('parking/<int:parking_id>/statistics/', ParkingStatisticsView.as_view(), name='parking_statistics'),
+      path('parking/<int:parking_id>/statistics/', ParkingStatisticsView.as_view(), name='parking_statistics_ocupation'),
     path('parking/<int:parking_id>/monthly-earnings/', MonthlyEarningsView.as_view(), name='monthly_earnings'),
     path('parking/<int:parking_id>/popular-prices/', PopularPricesView.as_view(), name='popular_prices'),
 ]

@@ -112,47 +112,79 @@ class ParkingEarningsView(APIView):
         serializer = ParkingEarningsSerializer(earnings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-from django.db.models import Avg, Sum, Count, F
+from django.db.models import Avg, Sum, Count, F, ExpressionWrapper, fields
 from django.db.models.functions import ExtractMonth, ExtractYear
 from datetime import datetime
 
 class ParkingStatisticsView(APIView):
-    def get(self, request, parking_id):
-        # Tiempo promedio de reserva
-        avg_reservation_time = Reservation.objects.filter(
-            vehicle_entry__parking_id=parking_id
-        ).aggregate(
-            avg_time=Avg(F('end_time') - F('start_time'))
-        )['avg_time']
+    def post(self, request, parking_id):
+        # Obtener parámetros del body
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        month = request.data.get('month')
+        year = request.data.get('year')
 
-        # Tiempo promedio de Details
-        avg_details_time = Details.objects.filter(
-            vehicle_entry__parking_id=parking_id
-        ).aggregate(
-            avg_time=Avg(F('endtime') - F('starttime'))
+        # Crear el filtro base
+        base_filter = {'vehicle_entry__parking_id': parking_id}
+
+        # Añadir filtros adicionales según los parámetros recibidos
+        if start_date and end_date:
+            base_filter['reservation_date__range'] = [start_date, end_date]
+        elif month and year:
+            base_filter['reservation_date__month'] = month
+            base_filter['reservation_date__year'] = year
+
+        # Calcular la diferencia de tiempo en horas
+        time_diff_expr = ExpressionWrapper(
+            F('end_time') - F('start_time'),
+            output_field=fields.DurationField()
+        )
+
+        # Tiempo promedio de reserva
+        avg_reservation_time = Reservation.objects.filter(**base_filter).aggregate(
+            avg_time=Avg(time_diff_expr)
         )['avg_time']
 
         # Tiempo total de reserva
-        total_reservation_time = Reservation.objects.filter(
-            vehicle_entry__parking_id=parking_id
-        ).aggregate(
-            total_time=Sum(F('end_time') - F('start_time'))
+        total_reservation_time = Reservation.objects.filter(**base_filter).aggregate(
+            total_time=Sum(time_diff_expr)
         )['total_time']
+
+        # Actualizar el filtro base para Details
+        if 'reservation_date__range' in base_filter:
+            base_filter['starttime__range'] = base_filter.pop('reservation_date__range')
+        elif 'reservation_date__month' in base_filter:
+            base_filter['starttime__month'] = base_filter.pop('reservation_date__month')
+            base_filter['starttime__year'] = base_filter.pop('reservation_date__year')
+
+        # Calcular la diferencia de tiempo en horas para Details
+        details_time_diff_expr = ExpressionWrapper(
+            F('endtime') - F('starttime'),
+            output_field=fields.DurationField()
+        )
+
+        # Tiempo promedio de Details
+        avg_details_time = Details.objects.filter(**base_filter).aggregate(
+            avg_time=Avg(details_time_diff_expr)
+        )['avg_time']
 
         # Tiempo total de Details
-        total_details_time = Details.objects.filter(
-            vehicle_entry__parking_id=parking_id
-        ).aggregate(
-            total_time=Sum(F('endtime') - F('starttime'))
+        total_details_time = Details.objects.filter(**base_filter).aggregate(
+            total_time=Sum(details_time_diff_expr)
         )['total_time']
 
-        return Response({
-            'avg_reservation_time': avg_reservation_time,
-            'avg_details_time': avg_details_time,
-            'total_reservation_time': total_reservation_time,
-            'total_details_time': total_details_time
-        })
+        # Convertir los resultados a horas
+        def to_hours(duration):
+            if duration:
+                return duration.total_seconds() / 3600
+            return 0
 
+        return Response({
+            'avg_reservation_time_hours': to_hours(avg_reservation_time),
+            'avg_details_time_hours': to_hours(avg_details_time),
+            'total_reservation_time_hours': to_hours(total_reservation_time),
+            'total_details_time_hours': to_hours(total_details_time)
+        })
 class MonthlyEarningsView(APIView):
     def get(self, request, parking_id):
         year = request.GET.get('year', datetime.now().year)
