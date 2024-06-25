@@ -1,13 +1,19 @@
 from django.urls import path
-from reserva.tasks import DailyTaskScheduler, ReservationManager
-from reserva.views import ReservationApiView, ReservationDetailApiView, ReservationPayment, ReservationUserDetailApiView, ParkingEarningsView
+from reserva.tasks import DailyTaskScheduler
+from reserva.views import MonthlyEarningsView, ParkingStatisticsView, PopularPricesView, ReservationApiView, ReservationDetailApiView, ReservationPayment, ReservationUserDetailApiView, ParkingEarningsView
 
 urlpatternsReservation= [
     path('reservations/', ReservationApiView.as_view()),
     path('reservations/<int:id>/', ReservationDetailApiView.as_view()),
     path('reservations/user/<int:userID>/', ReservationUserDetailApiView.as_view()),
     path('parking-earnings/<int:parking_id>/', ParkingEarningsView.as_view(), name='parking-earnings'),
-     path('reservations/payment/<int:id>/', ReservationPayment.as_view()),]
+    #Estadisticas
+     path('reservations/payment/<int:id>/', ReservationPayment.as_view()),
+      path('parking/<int:parking_id>/statistics/', ParkingStatisticsView.as_view(), name='parking_statistics'),
+    path('parking/<int:parking_id>/monthly-earnings/', MonthlyEarningsView.as_view(), name='monthly_earnings'),
+    path('parking/<int:parking_id>/popular-prices/', PopularPricesView.as_view(), name='popular_prices'),
+]
+
 
 scheduler = DailyTaskScheduler()
 scheduler.start()

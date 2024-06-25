@@ -1,6 +1,11 @@
+from dataclasses import fields
 from rest_framework.views import APIView
+from rest_framework import generics
+from django.db.models.functions import TruncMonth, TruncYear
+
 from rest_framework.response import Response
 from rest_framework import status
+from parqueo.models import Details
 from parqueo.serializers import VehicleEntrySerializer
 from reserva.models import Reservation
 from reserva.serializers import ReservationSerializer, ParkingEarningsSerializer
@@ -106,3 +111,112 @@ class ParkingEarningsView(APIView):
         earnings = Reservation.calculate_total_earnings_and_vehicle_count_per_parking(parking_id)
         serializer = ParkingEarningsSerializer(earnings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+from django.db.models import Avg, Sum, Count, F
+from django.db.models.functions import ExtractMonth, ExtractYear
+from datetime import datetime
+
+class ParkingStatisticsView(APIView):
+    def get(self, request, parking_id):
+        # Tiempo promedio de reserva
+        avg_reservation_time = Reservation.objects.filter(
+            vehicle_entry__parking_id=parking_id
+        ).aggregate(
+            avg_time=Avg(F('end_time') - F('start_time'))
+        )['avg_time']
+
+        # Tiempo promedio de Details
+        avg_details_time = Details.objects.filter(
+            vehicle_entry__parking_id=parking_id
+        ).aggregate(
+            avg_time=Avg(F('endtime') - F('starttime'))
+        )['avg_time']
+
+        # Tiempo total de reserva
+        total_reservation_time = Reservation.objects.filter(
+            vehicle_entry__parking_id=parking_id
+        ).aggregate(
+            total_time=Sum(F('end_time') - F('start_time'))
+        )['total_time']
+
+        # Tiempo total de Details
+        total_details_time = Details.objects.filter(
+            vehicle_entry__parking_id=parking_id
+        ).aggregate(
+            total_time=Sum(F('endtime') - F('starttime'))
+        )['total_time']
+
+        return Response({
+            'avg_reservation_time': avg_reservation_time,
+            'avg_details_time': avg_details_time,
+            'total_reservation_time': total_reservation_time,
+            'total_details_time': total_details_time
+        })
+
+class MonthlyEarningsView(APIView):
+    def get(self, request, parking_id):
+        year = request.GET.get('year', datetime.now().year)
+        
+        # Ganancias de reserva por mes
+        reservation_earnings = Reservation.objects.filter(
+            vehicle_entry__parking_id=parking_id,
+            reservation_date__year=year
+        ).annotate(
+            month=ExtractMonth('reservation_date')
+        ).values('month').annotate(
+            total=Sum('total_amount')
+        ).order_by('month')
+
+        # Ganancias de Details por mes
+        details_earnings = Details.objects.filter(
+            vehicle_entry__parking_id=parking_id,
+            starttime__year=year
+        ).annotate(
+            month=ExtractMonth('starttime')
+        ).values('month').annotate(
+            total=Sum('totalamount')
+        ).order_by('month')
+
+        return Response({
+            'year': year,
+            'reservation_earnings': reservation_earnings,
+            'details_earnings': details_earnings
+        })
+
+class PopularPricesView(APIView):
+    def get(self, request, parking_id):
+        year = request.GET.get('year', datetime.now().year)
+        month = request.GET.get('month', datetime.now().month)
+
+        # Precios más usados en reservas
+        popular_reservation_prices = Reservation.objects.filter(
+            vehicle_entry__parking_id=parking_id,
+            reservation_date__year=year,
+            reservation_date__month=month
+        ).values(
+            'price__id',
+            'price__price',
+            'price__type_vehicle__name'
+        ).annotate(
+            count=Count('id')
+        ).order_by('-count')
+
+        # Precios más usados en Details
+        popular_details_prices = Details.objects.filter(
+            vehicle_entry__parking_id=parking_id,
+            starttime__year=year,
+            starttime__month=month
+        ).values(
+            'price__id',
+            'price__price',
+            'price__type_vehicle__name'
+        ).annotate(
+            count=Count('id')
+        ).order_by('-count')
+
+        return Response({
+            'year': year,
+            'month': month,
+            'popular_reservation_prices': popular_reservation_prices,
+            'popular_details_prices': popular_details_prices
+        })
