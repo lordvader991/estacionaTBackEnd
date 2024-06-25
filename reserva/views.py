@@ -216,29 +216,50 @@ class MonthlyEarningsView(APIView):
         })
 
 class PopularPricesView(APIView):
-    def get(self, request, parking_id):
-        year = request.GET.get('year', datetime.now().year)
-        month = request.GET.get('month', datetime.now().month)
+    def post(self, request, parking_id):
+        # Obtener parámetros del body
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        month = request.data.get('month')
+        year = request.data.get('year')
+
+        # Crear el filtro base
+        base_filter = {'vehicle_entry__parking_id': parking_id}
+
+        # Añadir filtros adicionales según los parámetros recibidos
+        if start_date and end_date:
+            base_filter['reservation_date__range'] = [start_date, end_date]
+        elif month and year:
+            base_filter['reservation_date__month'] = month
+            base_filter['reservation_date__year'] = year
+        elif year:
+            base_filter['reservation_date__year'] = year
+        else:
+            # Si no se proporciona ningún filtro, usar el año y mes actual
+            current_date = datetime.now()
+            base_filter['reservation_date__year'] = current_date.year
+            base_filter['reservation_date__month'] = current_date.month
 
         # Precios más usados en reservas
-        popular_reservation_prices = Reservation.objects.filter(
-            vehicle_entry__parking_id=parking_id,
-            reservation_date__year=year,
-            reservation_date__month=month
-        ).values(
+        popular_reservation_prices = Reservation.objects.filter(**base_filter).values(
             'price__id',
             'price__price',
             'price__type_vehicle__name'
         ).annotate(
             count=Count('id')
         ).order_by('-count')
+
+        # Actualizar el filtro base para Details
+        if 'reservation_date__range' in base_filter:
+            base_filter['starttime__range'] = base_filter.pop('reservation_date__range')
+        elif 'reservation_date__month' in base_filter:
+            base_filter['starttime__month'] = base_filter.pop('reservation_date__month')
+            base_filter['starttime__year'] = base_filter.pop('reservation_date__year')
+        elif 'reservation_date__year' in base_filter:
+            base_filter['starttime__year'] = base_filter.pop('reservation_date__year')
 
         # Precios más usados en Details
-        popular_details_prices = Details.objects.filter(
-            vehicle_entry__parking_id=parking_id,
-            starttime__year=year,
-            starttime__month=month
-        ).values(
+        popular_details_prices = Details.objects.filter(**base_filter).values(
             'price__id',
             'price__price',
             'price__type_vehicle__name'
@@ -246,9 +267,20 @@ class PopularPricesView(APIView):
             count=Count('id')
         ).order_by('-count')
 
-        return Response({
-            'year': year,
-            'month': month,
+        # Preparar la respuesta
+        response_data = {
             'popular_reservation_prices': popular_reservation_prices,
             'popular_details_prices': popular_details_prices
-        })
+        }
+
+        # Añadir información sobre el filtro utilizado
+        if start_date and end_date:
+            response_data['filter'] = f"From {start_date} to {end_date}"
+        elif month and year:
+            response_data['filter'] = f"Month {month}, Year {year}"
+        elif year:
+            response_data['filter'] = f"Year {year}"
+        else:
+            response_data['filter'] = f"Current month and year"
+
+        return Response(response_data)
