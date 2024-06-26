@@ -40,7 +40,8 @@ class ReservationApiView(APIView):
             reservation_serializer.validated_data['vehicle_entry'] = vehicle_entry
             reservation = reservation_serializer.save()
 
-            if reservation_serializer.validated_data.get('reservation_date') == date.today():
+            if (reservation.state == Reservation.StateChoices.CONFIRMED and 
+                reservation.reservation_date == date.today()):
                     scheduler = initialize_scheduler()
                     daily_task_scheduler = DailyTaskScheduler()
                     daily_task_scheduler.create_task(reservation)
