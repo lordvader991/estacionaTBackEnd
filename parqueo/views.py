@@ -6,6 +6,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from parqueo.models import Parking, Address, OpeningHours, Price, PriceHour, VehicleEntry, Details
 from parqueo.serializers import ParkingSerializer, AddressSerializer,OpeningHoursSerializer, PriceHourSerializer, PriceSerializer, VehicleEntryDataSerializer, VehicleEntrySerializer, DetailsSerializer
+from reserva.models import Reservation
 from vehiculos.serializers import VehicleSerializer
 """ parking """
 class ParkingApiView(APIView):
@@ -472,10 +473,16 @@ class DetailsDetailApiView(APIView):
         Details.delete()
         response_data = {'deleted': True}
         return Response(status=status.HTTP_200_OK, data=response_data)
-
-class VehicleEntryCustom (APIView):
-        def get(self, request, parkingID):
-            entries = VehicleEntry.objects.filter(parking_id=parkingID).select_related('vehicle')
-            vehicleentryserializer = VehicleEntryDataSerializer(entries, many=True)
-            return Response(status=status.HTTP_200_OK, data=vehicleentryserializer.data)
+from django.db.models import Q
+class VehicleEntryCustom(APIView):
+    def get(self, request, parkingID):
+        entries = VehicleEntry.objects.filter(
+            parking_id=parkingID
+        ).exclude(
+            Q(is_reserva=True) & 
+            Q(vehicle_entry__state=Reservation.StateChoices.PENDING)
+        ).select_related('vehicle')
+        
+        vehicleentryserializer = VehicleEntryDataSerializer(entries, many=True)
+        return Response(status=status.HTTP_200_OK, data=vehicleentryserializer.data)
 

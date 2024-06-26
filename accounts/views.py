@@ -120,7 +120,7 @@ class MobileTokenListCreateAPIView(APIView):
             user = serializer.validated_data['user']
             
             # Verificar si ya existe un MobileToken con el mismo token
-            if MobileToken.objects.filter(token=token).exists():
+            if MobileToken.objects.filter(token=token,user=user).exists():
                 return Response(data={"error": "Este token ya está en uso."}, status=status.HTTP_400_BAD_REQUEST)
             
             # Crear el nuevo MobileToken
