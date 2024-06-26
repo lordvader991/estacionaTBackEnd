@@ -10,7 +10,7 @@ from parqueo.serializers import VehicleEntrySerializer
 from reserva.models import Reservation
 from reserva.serializers import ReservationSerializer, ParkingEarningsSerializer
 from datetime import date, datetime,timedelta
-from .tasks import DailyTaskScheduler
+from .tasks import DailyTaskScheduler, initialize_scheduler
 from django.db import transaction
 
 class ReservationApiView(APIView):
@@ -41,7 +41,9 @@ class ReservationApiView(APIView):
             reservation = reservation_serializer.save()
 
             if reservation_serializer.validated_data.get('reservation_date') == date.today():
-                DailyTaskScheduler().create_task(reservation)
+                    scheduler = initialize_scheduler()
+                    daily_task_scheduler = DailyTaskScheduler()
+                    daily_task_scheduler.create_task(reservation)
 
             return Response(status=status.HTTP_201_CREATED, data={
                 'reservation': reservation_serializer.data,
@@ -123,10 +125,8 @@ class ParkingStatisticsView(APIView):
         end_date = request.data.get('end_date')
         month = request.data.get('month')
         year = request.data.get('year')
-
         # Crear el filtro base
         base_filter = {'vehicle_entry__parking_id': parking_id}
-
         # Añadir filtros adicionales según los parámetros recibidos
         if start_date and end_date:
             base_filter['reservation_date__range'] = [start_date, end_date]
@@ -156,18 +156,15 @@ class ParkingStatisticsView(APIView):
         elif 'reservation_date__month' in base_filter:
             base_filter['starttime__month'] = base_filter.pop('reservation_date__month')
             base_filter['starttime__year'] = base_filter.pop('reservation_date__year')
-
         # Calcular la diferencia de tiempo en horas para Details
         details_time_diff_expr = ExpressionWrapper(
             F('endtime') - F('starttime'),
             output_field=fields.DurationField()
         )
-
         # Tiempo promedio de Details
         avg_details_time = Details.objects.filter(**base_filter).aggregate(
             avg_time=Avg(details_time_diff_expr)
         )['avg_time']
-
         # Tiempo total de Details
         total_details_time = Details.objects.filter(**base_filter).aggregate(
             total_time=Sum(details_time_diff_expr)

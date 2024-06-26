@@ -1,5 +1,5 @@
 from django.urls import path
-from reserva.tasks import DailyTaskScheduler
+from reserva.tasks import DailyTaskScheduler, initialize_scheduler
 from reserva.views import MonthlyEarningsView, ParkingStatisticsView, PopularPricesView, ReservationApiView, ReservationDetailApiView, ReservationPayment, ReservationUserDetailApiView, ParkingEarningsView
 
 urlpatternsReservation= [
@@ -15,5 +15,5 @@ urlpatternsReservation= [
 ]
 
 
-scheduler = DailyTaskScheduler()
-scheduler.start()
+scheduler = initialize_scheduler()
+daily_task_scheduler = DailyTaskScheduler()
