@@ -101,10 +101,17 @@ class ReservationPayment(APIView):
         reservation = self.get_object(id)
         if reservation is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        reservation_serializer = ReservationSerializer(reservation)
+
+        if reservation.reservation_date == date.today():
+            scheduler = initialize_scheduler()
+            daily_task_scheduler = DailyTaskScheduler()
+            daily_task_scheduler.create_task(reservation)
+
         reservation.state = Reservation.StateChoices.CONFIRMED
         reservation.save()
         return Response(status=status.HTTP_200_OK)
-
 class ParkingEarningsView(APIView):
     def get(self, request, parking_id=None):
         if parking_id is None:
